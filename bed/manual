@@ -1,0 +1,722 @@
+.  \" run this using tbl | {n,t,vt}roff -ms
+.if t .pl 30.5c \" a4-size, plus a bit for Versatec paper shrinkage
+.TL
+.I B
+Editor Reference Manual
+.br
+.I
+Mark 1
+.AU
+Guido van Rossum
+.AI
+CWI, Centre for Mathematics and Computer Science,
+.br
+(Formerly Mathematical Centre),
+.br
+Amsterdam
+.SH
+1. Introduction
+.LP
+This manual describes the working of all commands available in the
+.I B
+editor.
+As the editor is still evolving, it also mentions
+some bugs and possible improvements.
+.SH
+2. Key bindings
+.LP
+The following table gives the ``official'' names of the commands
+and the key(s) to which they are bound.
+The rest of the manual only references the official names, so rebinding
+of names to different keys does not affect the remainder of this manual.
+(However, as the key bindings ought to be as mnemonic as possible,
+a reorganization of key bindings will only be possible by also changing
+the command names!)
+.PP
+Some commands are bound to ``function keys''.
+Between parentheses the labels of the function keys on the
+HP-2621 terminal are shown.
+On terminals with fewer than eight such keys, an alternate solution must
+be devised \- this is beyond the scope of this manual.
+.TS
+l l.
+name	other key(s)
+
+WIDEN	\fIf1\fP (shift-home)
+FIRST	\fIf2\fP (shift-lower-left)
+LAST	\fIf3\fP (shift-roll-up)
+EXTEND	\fIf4\fP (shift-roll-down)
+
+UP-LINE	\fIf5\fP (shift-up-arrow)
+PREVIOUS	\fIf6\fP (shift-left-arrow)
+NEXT	\fIf7\fP (shift-right-arrow)
+DOWN-LINE	\fIf8\fP (shift-down-arrow)
+
+COPY	control-C
+DELETE	control-D
+GOTO	control-G
+UNDO	BACKSPACE=control-H
+ACCEPT	TAB=control-I
+REDRAW	control-L
+RETURN	RETURN=control-M, LINEFEED=control-J
+PLAY	control-P
+RECORD	control-R
+UNDO-UNDO	control-U
+EXIT	control-X
+.TE
+.SH
+3. The editor's universe
+.LP
+On the screen, we see:
+.IP \\-
+A
+.I "B unit."
+(When a permanent target is edited, we see an expression rather than a unit.)
+When the edited object is larger than what fits on the screen,
+only part of it is shown.
+.IP \\-
+A
+.I focus
+of attention.
+This is an underlined or brighter part of the
+.I B
+unit or expression shown.
+It indicates the part of it on which editing commands will act.
+.IP \\-
+A
+.I "bottom line"
+which is usually blank but which can contain error messages and
+status information.
+.IP \\-
+Maybe one or more
+.I holes,
+shown as question marks;
+they indicate places where the
+.I B
+unit is incomplete.
+It is also possible that the focus consists of (nothing but) a
+hole, which disappears when the focus is moved (actually, it may
+move along with the focus).
+Such a hole is called
+.I volatile
+and stresses the possibility of inserting text at that point, nothing more.
+.LP
+Behind the scenes, it is good to imagine that there are:
+.IP \\-
+A
+.I "text buffer"
+which contains the entire edited object (important if the screen
+can only contain part of it).
+.IP \\-
+A data structure which describes where the focus is in the text buffer.
+.IP \\-
+A
+.I "copy buffer"
+which is never shown on the screen (in this implementation) but
+whose contents can be transferred to and from the text buffer.
+.IP \\-
+A
+.I "macro buffer"
+which can hold an arbitrary number of keystrokes (i.e., user commands),
+to be repeated on request at a later time.
+.IP \\-
+And last but not least, history records; these hold the value of
+all the above items in older (and not so old) times.
+This allows one to correct erroneous changes or to experiment
+with the effect of various commands.
+.PP
+All this scenery can be moved and rearranged
+at the touch of a key, literally.
+Every key pressed is immediately interpreted as a command.
+Commands can be distinguished in several classes:
+.IP \\-
+.I Self-inserting.
+These are all the printable ASCII characters,
+the space bar and (in some sense) the RETURN key.
+.IP \\-
+Commands that change the position or size of the focus.
+.IP \\-
+Commands for deleting and moving portions of text.
+.IP \\-
+Miscellaneous commands.
+.PP
+The first three classes are all directed to the text buffer
+and specifically affect the focus; the deleting and moving commands
+also use the copy buffer as intermediate storage.
+Miscellaneous commands are provided to go back in history,
+to manipulate the macro buffer, to redraw the screen if it was clobbered,
+and finally to leave the editor.
+Only the text buffer and under some circumstances the copy buffer
+outlive the editor and will be there exactly the same at the next call;
+macro and history are lost.
+(This is complicated by the fact that the
+.I B
+interpreter has a different view of the text buffer;
+it may present the editor with a different version.
+However, the copy buffer is never touched by the interpreter.)
+The focus is saved in a rough sort of way; it usually comes back
+on the same line but not on exactly the same place as when the editor
+was left.
+.SH
+4. Initialization
+.LP
+This chapter can be ignored by readers who use the editor
+via the
+.I B
+interpreter.
+(It is intended to give maintenance personnel an idea
+of what goes on and what could go wrong.)
+However, par. 4.2 should be read by those users who
+occasionally use a different editor to edit their
+.I B
+units.
+.SH
+4.1 Command arguments
+.LP
+On entry, the editor first of all processes its command arguments.
+In the standard
+.UX
+notation, the command line looks as follows:
+.DS
+\fBBed\fP [ \-\fBh\fP ] [ \-\fBs\fP ] [ \fB+\fP\fIlineno\fP ] [ \fIfile\fP ]
+.DE
+The meaning of the arguments is as follows.
+.IP \\-\\fBh\\fP
+.I "(``Hush baby'')"
+If specified, the editor doesn't bell or beep when there is an error.
+.IP \\-\\fBs\\fP
+.I (``Slow'')
+If specified, the editor omits some long error messages
+that would only be annoying on slow terminals.
+Turned on by default for speeds of 600 baud and below.
+.IP \\fB+\\fP\\fIlineno\\fP 10
+An optional line number where the focus will be positioned initially.
+Lines count starting from one.
+By default the focus is on the same line (but not necessarily
+on the same characters) as it was the last time the unit was edited.
+If the unit was not edited before, the focus is on line 1,
+or at the end of line 1 if it is only one line.
+(Information about the position of edited units is kept in the file
+``.Bed_pos''.)
+.IP \\fIfile\\fP 10
+The file from which the text buffer will be read and to which it
+will be written back when the editor exits.
+If omitted, the file ``.Bed_save'' will be used.
+It is no error if the file does not exist nor if it is empty;
+but if it contains any text it must be a valid
+.I B
+unit or expression
+(the latter to allow editing of permanent targets).
+.SH
+4.2 Reading the text buffer
+.LP
+When no fatal errors arguments occur during argument processing,
+the text buffer is read from the mentioned or default file and the
+focus is positioned to the given or default line.
+If the file couldn't be read, the text buffer is empty initially.
+.PP
+Not every legal
+.I B
+program can be read in correctly by the editor;
+problems occur especially with comments that are indented
+less than the following line.
+Also, comments at the same indentation level as an alternative-suite
+(i.e., one tab stop after SELECT) cannot be handled.
+.PP
+Some changes are made to the text in the text buffer:
+blank lines are ignored;
+spaces are sometimes deleted or inserted;
+multiple spaces (except in strings and comments, of course) are replaced
+by single spaces.
+Except in strings and comments, question marks are assumed to be
+holes that were present in the text buffer when it was saved on exit
+from a previous edit session, and these holes are restored.
+.PP
+All non-ASCII characters and ASCII control characters in the file are
+replaced by blanks, except for linefeed (which ends a line) and
+tabs at the beginning of a line.
+Note that this implies that you cannot have tabs or control characters
+(such as ESC) in texts; although [Draft Proposal] disallows non-printing
+characters, the current
+.I B
+interpreter allows them.
+.PP
+Initial tabs are expanded to spaces with tab stops assumed every
+.I four
+character positions, rather than the
+.UX
+default of eight.
+Every four spaces mean one ``level of indentation'' in the sense
+of [Draft Proposal].
+.PP
+.SM
+(On exit, indentation is always output in the form of tab characters.
+This means that when the text is processed with normal means such as
+.I "print, vi"
+or
+.I Emacs,
+it looks a bit stretched.
+Both
+.I vi
+and
+.I Emacs
+have an option to change the setting of tab stops.
+If we used spaces, it would look alright, but the
+``auto-indent'' modes of both editors would use tabs to replace
+eight spaces, i.e. two tab stops for the
+.I B
+system are replaced by one!
+We can't change back to tab stops eight characters apart because
+many old
+.I B
+programs would have to be converted; it looks bad, too.
+In retrospect, it might have been better to let a tab mean eight
+spaces but two indent levels.
+It's too late now; so always beware of tabs vs. spaces when using
+another editor.)
+.PP
+When, during reading of the text buffer, a character other than
+a space (or a control character converted to a space) couldn't be inserted,
+the reading process is aborted and the message appears:
+.I
+``Trouble reading your unit, see last line.
+Exit now if you don't want this.''
+.R
+The text buffer as read until then is displayed, with the focus
+at the position where the error occurred.
+If the user nevertheless changes the unit before exiting, the unit
+as shown on the screen in written back.
+.SH
+4.3 Reading the copy buffer
+.LP
+After the text buffer another file is read,
+``.Bed_buf'', which may contain the
+contents of the copy buffer as it was on exit from the previous editing
+session in this directory.
+There is no way to specify an alternate name for this buffer.
+The format of this file is internal to the editor; a description may
+follow in an appendix
+.I "(to appear)."
+If it is empty or does not exist, the copy buffer is empty initially.
+.PP
+(The copy buffer is only written to this file on end of an edit session
+if it contains text explicitly copied out using COPY but not yet copied back;
+otherwise it is deleted.)
+.SH
+5. The command loop
+.LP
+When the initialization is done the editor starts its command loop.
+It repeatedly updates the screen,
+reads a character and interprets this as a command, until the EXIT
+command is encountered.
+.PP
+In fact the display is only updated when, just before going to read a
+character, it discovers no characters have been typed yet.
+This has the effect of delaying screen updates when the user types ahead,
+thus limiting the amount of terminal I/O especially on a slow system.
+(On a slow terminal, though, the terminal may not be able to send
+characters until the computer stops sending data, thereby hampering
+the user's type-ahead.)
+.PP
+On many
+.UX
+systems (especially those derived with few changes from Version 7),
+it is not possible to determine whether there is more input or not;
+here the ``delayed update'' feature is ineffective except when
+the user is so much ahead of the editor that one ``read'' system call
+can transfer several characters to the input buffer
+(luckily, this frequently occurs on very slow systems).
+.SH
+6. Command descriptions
+.SH
+6.1 Focus control commands
+.SH
+6.1.1 PREVIOUS
+.LP
+The PREVIOUS command moves the focus one step to the left,
+or to the previous line if there is nothing left of the current focus.
+The size of the new focus is not too different from the size of
+the current focus.
+Rather than explaining its workings at length, it is best to try
+and see what happens in several situations.
+A special feature: if the focus is one character in size or is
+a ``volatile hole'', it will always stay such.
+(This is one of several cases where the effect of PREVIOUS depends
+on the previous command(s).)
+.PP
+.I Bugs:
+When the current focus is at most one line, the new focus should never
+be more than one line.
+.SH
+6.1.2 NEXT
+.LP
+NEXT is similar to PREVIOUS, but moves to the right or to the next line.
+.SH
+6.1.3 UP-LINE
+.LP
+The UP-LINE command positions the focus on the entire previous line.
+.PP
+.I Bugs:
+When the focus is several lines starting at line 2, UP-LINE sometimes
+refuses.
+In such cases, try FIRST first.
+.SH
+6.1.4 DOWN-LINE
+.LP
+DOWN-LINE is like UP-LINE but goes to the next line.
+.PP
+.I Bugs:
+When the focus is more than one line, it goes to the second line
+of the focus rather than to the line below its last line.
+.SH
+6.1.5 WIDEN
+.LP
+The WIDEN command makes the focus larger.
+E.g., when the focus contains a single line, WIDEN makes it contain
+the smallest command suite or command properly containing that line;
+when the focus contains a single character of an identifier,
+WIDEN makes it contain the whole identifier.
+Like PREVIOUS, experimentation is my only advise.
+.PP
+.I Bugs:
+There are many surprising cases (this is true for FIRST and LAST, too).
+.SH
+6.1.6 FIRST (formerly NARROW)
+.LP
+FIRST positions the focus on its first ``sub-item''.
+A sub-item of a command suite is a command, a sub-item of an identifier
+is a single character, etc.
+When the current focus is already a single character in size,
+a volatile hole is created just before that character.
+.SH
+6.1.7 LAST
+.LP
+LAST is like FIRST
+but positions on the last sub-item rather that the first.
+.SH
+6.1.8 EXTEND
+.LP
+EXTEND is an alternative for WIDEN which tries to make the focus
+only a bit larger.
+It joins the focus with the next item within the same ``parent item'';
+if there is no next item, it joins with the previous item instead.
+.SH
+6.1.9 ACCEPT
+.LP
+ACCEPT (also known as TAB because of its key binding)
+positions the focus at the next hole starting from the beginning
+of the current focus, or at the end of the line, whichever occurs first.
+It thus always gives the focus the smallest possible size and the shape
+of a hole (at the end of the line, a volatile one).
+.PP
+.I Bugs:
+When already at the end of a line, it remains there rather than
+starting to look for a hole on the next line.
+.PP
+.I "Proposed change:"
+When the user is obviously inserting text, ACCEPT should move to an
+insert position just after the current suggestion, or to the first hole
+in that suggestion.
+.SH
+6.1.10 GOTO
+.LP
+The GOTO command requires that the terminal has means to move the
+cursor without telling the computer about it.
+This is the case on the HP-2621, for instance, where the arrow
+keys move the cursor locally (with shift pressed, they transmit the
+codes for the UP-LINE, PREVIOUS etc. commands, however).
+When the terminal has a ``mouse'', the cursor of the mouse might
+be used (this needs some changes in the implementation).
+GOTO removes the current focus and creates a new focus at approximately
+the position pointed to by the cursor.
+.PP
+The size of the new focus is a single lexical unit.
+When the cursor points into white space in the left or right margins,
+a volatile hole is created at the beginning or end of the line,
+respectively.
+.PP
+.I "Proposed change:"
+The focus should be the largest syntactical unit (in some sensible sense)
+beginning at the indicated character, so that e.g. pointing at the
+S of SELECT would give the whole select-clause, while pointing
+at the E of SELECT would give only that letter E.
+.SH
+6.2 Editing commands
+.SH
+6.2.1 Self-inserting characters
+.LP
+All of the printable ASCII characters and the space bar
+are self-inserting, i.e., the character is inserted just
+.I before
+the focus (replacing the focus if this is a hole).
+The new focus is a hole, usually volatile, just after the inserted character.
+.PP
+When a lower case letter is used where only upper case letters are
+allowed, upper case is assumed (but not the other way around).
+This means that there is no need to type upper case letters, except:
+.br
+1) for the first letter of secondary keywords of user-defined commands
+(theoretically this holds for secondary keywords of built-in commands, too;
+but these are usually skipped using ACCEPT);
+.br
+2) in tests for the first letter of AND, OR, SOME, EACH, NO and NOT.
+.PP
+When you type the first letters of a keyword, the editor tries
+to guess the remainder of the command, and shows this to the right
+of the focus.
+This is called a
+.I suggestion.
+If you continue typing, you overwrite the suggestion, which is
+changed to conform to what you type, and may eventually disappear
+(if the keyword is not known to the editor).
+If you are pleased with a suggestion, press ACCEPT;
+this moves the focus to the first hole in the command;
+or press RETURN to proceed to the next line.
+.PP
+You can always ignore suggestions completely;
+just typing what you want to enter (if it's legal B!) will work fine.
+This is called the
+.I "blind typist's rule".
+.PP
+When you type text that was just suggested, a different suggestion
+may appear, to allow you to choose (by pressing ACCEPT) one of several
+commands beginning with the same sequence of letters.
+As an example, typing an S suggests SELECT; if you then type an E
+it changes to SET'RANDOM; if you now type an L, you get back SELECT.
+.PP
+To a limited extent, this mechanism also works for SOME,
+IN, OR, NOT etc. in tests (though here you must enter the first
+letter in upper case).
+.PP
+As another form of suggestion, the editor always displays
+the matching close delimiter to the right of the focus
+whenever you type a left parenthesis, brace, bracket, quote
+or backward quote.
+(There is a penalty: you cannot change the parenthesis structure
+of an expression by simply deleting a parenthesis and inserting
+one elsewhere, for instance.)
+.PP
+When a built-in command or form has several possible secondary
+keywords (this applies to READ EG/RAW and to SOME (NO, EACH) IN/PARSING),
+a different secondary keyword than the one shown can be selected
+by typing its first character(s) when the focus is just
+before it.
+E.g., with the screen showing READ a ?EG ? and the focus
+on the first question mark, typing an r or an R produces READ a R?AW.
+.PP
+.I Hint:
+The proper way to skip a closing parenthesis or quote, when the focus
+is a volatile hole just before it, is to type the character that
+you want to skip.
+E.g., when the screen shows PUT (a+b?) IN ?, with the focus on the
+first question mark, typing a ``)'' produces PUT (a+b)? IN ?.
+(This is a somewhat unforeseen effect of the blind typist's rule;
+note that in most cases ACCEPT would skip much more than that single character
+because it only stops at real holes, not at volatile ones (after
+every character a volatile hole may be created, useful or not).)
+.I "(But see ``Proposed change'' of ACCEPT.)"
+.SH
+6.2.2 RETURN
+.LP
+RETURN usually acts as a self-inserting character like those described
+in 6.2.1; that is, it inserts a new-line character.
+If the rest of the current line contains only suggested text,
+the suggestion is canceled.
+A new line appears after the current line, properly indented,
+with the focus on a hole on that new line.
+.PP
+However, when the focus is a hole on a line by itself,
+it has the effect of decreasing the indentation by one step.
+.PP
+.I Bugs:
+There is no way to decrease in increase the indentation
+of an already existing line, except a cumbersome
+sequence of COPY and DELETE commands.
+.SH
+6.2.3 DELETE
+.LP
+DELETE deletes the current focus.
+When this is a volatile hole,
+an action resembling WIDEN is performed after deletion of the hole.
+.PP
+Unless the current focus is a hole, and unless the copy buffer
+is ``locked'' (see 6.2.4), the deleted text is moved to the copy
+buffer, overwriting its previous contents; otherwise the deleted
+text is lost (but there is always UNDO).
+DELETE never locks or unlocks the copy buffer.
+.SH
+6.2.4 COPY
+.LP
+The COPY command can do two things, depending on what the focus looks like.
+When the focus contains only a hole (possibly surrounded by spaces),
+the contents of the copy buffer is inserted in the focus.
+Otherwise, the contents of the focus is copied to the copy buffer,
+overwriting its previous contents.
+.PP
+The copy buffer is also overwritten by DELETE, which moves deleted
+text to it, unless it is ``locked''.
+The copy buffer is locked by COPY when copying text from the focus
+to the copy buffer; it is only unlocked when this text is copied
+back to the focus by another COPY command.
+Only when the copy buffer is locked, it is saved on exit and read back
+on entry (see chapter 4); when it is read back the lock is set again.
+During the time that the copy buffer is locked, the message ``[Copy buffer]''
+appears on the bottom line.
+.PP
+.I Bugs:
+Beware of the case where the focus is a single space;
+here (as is the definition) the space is copied to the copy buffer,
+the copy buffer is not inserted in the focus.
+.br
+Insertion of the copy buffer often fails when
+more than one alternative-suite or refinement is involved.
+.SH
+6.3 Miscellaneous commands
+.SH
+6.3.1 RECORD
+.LP
+The RECORD command is a toggle which turns on or off
+.I "recording mode."
+In this mode, all commands described in paragraphs 6.1 and 6.2
+are recorded in the macro buffer, when at least they didn't fail.
+The commands are also executed, so that the user can check
+the effect immediately.
+The commands gathered in the macro buffer
+can later be executed again using a single keystroke, the PLAY command
+(see below).
+.PP
+Note that turning recording mode on and immediately off again empties the
+macro buffer.
+.PP
+Also note that UNDO and UNDO-UNDO commands are not saved in the macro
+buffer, but rather manipulate the status of the macro buffer
+and recording mode.
+This means that during macro definition you can experiment safely
+with the effect of commands; and that you can UNDO an accidental
+touch of the RECORD key which ended the macro prematurely or
+destroyed the previous macro.
+However, it also means that you cannot define a macro and then undo
+the effect of the commands executed during the definition without also
+undoing the definition itself!
+.PP
+Recording mode is indicated by a message in the bottom line saying
+``[Recording]''.
+(The existence of a non-empty macro buffer is not indicated in any way).
+.SH
+6.3.2 PLAY
+.LP
+The PLAY command executes the commands gathered in the macro buffer
+until the end of the macro buffer or until a command fails.
+If at least one command was executed and did not fail, the PLAY command
+itself succeeds, otherwise the PLAY command itself fails.
+.PP
+When used during recording mode, the
+.I previous
+contents of the macro buffer (i.e., its contents just before
+RECORD was pressed the last time) is executed until a command failed,
+and those commands that succeeded are inserted in the macro buffer
+under construction.
+.SH
+6.3.3 UNDO
+.LP
+The UNDO command (conveniently bound to the BACKSPACE key)
+undoes the effect of the previous command.
+All commands described up to this paragraph are undo-able.
+It is cumulative, that is, repeated UNDO commands undo more and
+more old commands.
+The status of the text buffer, the focus, the copy buffer and
+the macro buffer and the associated flags (copy buffer lock,
+recording mode) are all restored as they were before the command
+that is undone.
+.PP
+The screen is not exactly restored; rather, the text buffer
+is redisplayed showing the restored situation
+(this means that the position of the focus relative to the
+screen boundaries may be different than before;
+but it remains the same relative to the text buffer, of course).
+Related to this feature is the fact that REDRAW (see below)
+does not count as a command for UNDO, as it does not
+affect the status of the various buffers and flags at all.
+.PP
+An UNDO command never undoes another UNDO command;
+rather, it continues where the previous one left off.
+E.g., after X Y Z UNDO UNDO, the situation is as if only
+X was executed; if we then type V UNDO UNDO, the first UNDO
+undoes the V, the second one undoes the X, restoring the situation
+as it was before we typed X Y Z.
+.PP
+Currently, there is a limit of 100 commands that can be undone.
+.SH
+6.3.4 UNDO-UNDO
+.LP
+The UNDO-UNDO is the reverse of the UNDO command: it is the only way to
+undo an UNDO (without retyping the command that was undone).
+Like UNDO, repeated UNDO-UNDO's have a cumulative effect and each UNDO-UNDO
+continues where the previous one left off.
+Note that this can have particularly nasty consequences when
+UNDO-UNDO is typed when no UNDO was typed for a long time:
+it then reverts to the situation before the last UNDO, which is
+probably an error that was corrected long ago.
+(Example: X Y UNDO A B C UNDO-UNDO has the effect of X Y.)
+But see the next paragraph:
+.PP
+To undo a UNDO-UNDO, note that UNDO is to UNDO-UNDO as UNDO-UNDO is to UNDO.
+That is, if you UNDO-UNDOed too much, you can use UNDO to undo it.
+In fact, you can travel in two directions in time using UNDO
+and UNDO-UNDO, respectively.
+.PP
+.I Bugs:
+It is barely necessary.
+The only practical use for UNDO-UNDO is the undoing for an accidental
+UNDO, and as UNDO undoes exactly one keystroke, typing the command
+that was accidentally undone is just as easy as typing UNDO-UNDO.
+Together with the nasty consequence mentioned above,
+this may well lead to the removal of UNDO-UNDO (not that this will
+render the implementation of UNDO any simpler).
+.PP
+Also, it has to be explained to users: most people would never guess
+its existence.
+.SH
+6.3.5 REDRAW
+.LP
+The REDRAW command has no effect whatsoever on the status of the
+text buffer, the focus, the copy buffer, the macro buffer or the associated
+flags (therefore it is ``invisible'' for UNDO).
+It redraws the screen with the focus approximately centered around
+the middle lines, if this is at all possible.
+Its main use is to recover from output inadvertently written to the screen
+by background jobs or other users; it can also be used to get the focus
+centered on the screen.
+.PP
+.I Bugs:
+Its key-binding is unmnemonic; however, control-L for ``redraw screen'' is a
+.UX -wide
+convention.
+.SH
+6.3.6 EXIT
+.LP
+The EXIT command leaves the editor.
+It cannot be undone.
+Before leaving, it redraws the screen without any focus showing.
+If the text buffer has been changed,
+it is written back to the file from which it was
+originally read, leaving question marks for unfilled holes
+(but not for volatile holes).
+If the copy buffer is locked, it is written in an internal format
+to the file ``.Bed_buf''; otherwise, this file is emptied
+and removed.
+The name of the current file and the line number where the focus starts
+are saved in the file ``.Bed_pos''.
+.PP
+EXIT is also triggered by the interrupt signal (sent by the DEL
+or BREAK key), by any other unexpected signal except quit
+(control-\e), and when an internal error is encountered.
+In these cases the screen is not redrawn.
+The quit signal is caught but only the ``tty status'' is reset
+and then a core dump is produced.
+.PP
+.I Bugs:
+EXIT should ask if the user really wants to quit if there are unfilled
+holes left.
+The situation should be detected when EXIT is called
+in remembering mode (and what action taken?).
