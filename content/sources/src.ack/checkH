@@ -1,0 +1,17 @@
+cat *.h |
+repl '\\\n' '' |
+sed '
+s/\/\*//g
+s/\*\///g
+' |
+debrace -o |
+debrace |
+sed '
+s/[	 ]*$//
+/^$/d
+/^#define/d
+/^#include/d
+/;.*;/s/^/@@/
+/^typedef[ a-zA-Z0-9_,*]*;$/d
+/^extern[][ a-zA-Z0-9_,*()]*;$/d
+'

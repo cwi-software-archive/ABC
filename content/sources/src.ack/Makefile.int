@@ -1,0 +1,287 @@
+MAKE=make
+SHELL=/bin/sh
+CC=cc
+CC=/usr/em/bin/int -.c
+.SUFFIXES: .m .c
+.c.m:
+	$(CC) $(CFLAGS) $<
+COMMON=bcom.m bcmd.m benv.m berr.m bexp.m bfil.m bfpr.m blis.m bloc.m \
+	bmai.m bmem.m bobj.m \
+	bscr.m bsig.m bsou.m bsyn.m btab.m \
+	btar.m btes.m btex.m btlt.m btyp.m buni.m
+BIG=bfun.m bnuA.m bnuC.m bnuG.m bnuI.m bnuQ.m bnuR.m bnum.m bval.m
+SMALL=Bfun.m Bnum.m Bval.m
+SMALLF=Bfun.c Bnum.h Bnum.c Bval.c
+PART1=b.h bcon.h bmem.h bmem.c bval.c bobj.h bobj.c \
+	btex.c blis.c btab.c btlt.c bcom.c\
+	bnum.h bnuA.c bnuC.c bnuG.c bnuI.c bnuQ.c bnuR.c \
+	bnum.c bfun.c 
+PART2=benv.c \
+	bfil.h bfil.c bsig.h bsig.c bscr.h bscr.c berr.h berr.c \
+	bkey.h bsyn.h bsyn.c \
+	bsem.h btyp.h btyp.c bloc.c \
+	bexp.c btar.c btes.c bfpr.c \
+	bsou.h bsou.c buni.c bcmd.c bmai.c
+FILES=$(PART1) $(PART2)
+ALL=$(FILES) $(SMALLF)
+CFLAGS=-O
+#LDFLAGS= -i	# PDP-11/{44,45,50,70} only
+#LDFLAGS= -g	# Unix 4.2
+PRINTER=nroff -T1650.12
+all: bnew
+bnew:$(COMMON) $(BIG)
+	-mv bnew bnew.old 2>/dev/null
+	$(CC) $(CFLAGS) $(LDFLAGS) $(COMMON) $(BIG) -lm -o bnew
+	size bnew bnew.old ../bnew $HOME/b.lib/oldb
+#	job make test&
+bsmall:$(COMMON) $(SMALL)
+	-mv bsmall bsmall.old 2>/dev/null
+	$(CC) $(CFLAGS) $(LDFLAGS) $(COMMON) $(SMALL) -lm -o bsmall
+	size bsmall bsmall.old bnew /other/dick/lib/b
+bnew.lx:$(COMMON) $(BIG)
+	/other/dick/bin/lxref $(COMMON) $(BIG) -lm >bnew.lx
+bsmall.lx:$(COMMON) $(SMALL)
+	/other/dick/bin/lxref $(COMMON) $(SMALL) -lm >bsmall.lx
+Bval.m:bval.c
+	cp bval.c Bval.c
+	$(CC) -c.m $(CFLAGS) -DSMALLNUMBERS Bval.c
+listing:part1 part2
+part1:$(PART1)
+	bdruk $(PART1)|lpr -J "B Sources" -C "Part One"
+	echo Touch file>part1
+part2:$(PART2)
+	bdruk $(PART2)|lpr -J "B Sources" -C "Part Two"
+	echo Touch file>part2
+lprint:$(FILES)
+	bdruk $(FILES)|lpr
+	echo Touch file>lprint
+tape:
+	@echo -n "For: "; read name; echo Tape for $$name `date`>>.log
+	tar cv `ls | grep -v \.m$$ | grep -v \@*`
+test:bnew
+	$HOME/impl/testnew
+	echo Touch file>test
+check:$(FILES)
+	lint -ah b*.c>LINT.OUT
+comparison:$(ALL)
+	date>>.log
+#	compare $?
+	-for i in $?;\
+	do	if diff .$$i $$i>@log;\
+		then rm @log;\
+		else echo ==== $$i ====>>.log;\
+			cat @log>>.log;\
+			rm @log;\
+		fi;\
+	done
+	echo Touch file>comparison
+backup:$(ALL)
+	for i in $?; do cp $$i .$$i ; done
+	echo Touch file>backup
+edit:comparison backup
+	-emacs $(FILES)
+	make comparison
+version:bnew
+	cp bnew bnew.junk
+	mv bnew.junk ../bnew
+	echo Version `date`>>.log
+	echo Touch file>version
+index:
+	@grep -n Visible $(ALL)|sort +2
+	@grep -n Hidden $(ALL)|sort +2
+depend:$(ALL)
+	/bin/grep '^#[ 	]*include' /dev/null ${ALL} | \
+		sed	-e 's,<\(.*\)>,"/usr/include/\1",' \
+			-e 's/:[^"]*"\([^"]*\)".*/: \1/' \
+			-e 's/\.c/.m/' >makedep.junk
+	echo '/^# DO NOT DELETE THIS LINE/+2,$$d' >eddep.junk
+	echo '$$r makedep.junk' >>eddep.junk
+	echo 'w' >>eddep.junk
+	cp Makefile Makefile.old
+	ed - Makefile < eddep.junk
+	rm eddep.junk makedep.junk
+	echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile
+	echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile
+	echo '# See make depend above' >> Makefile
+	echo Touch file>depend
+
+# DO NOT DELETE THIS LINE -- make depend uses it
+
+b.h: /usr/include/stdio.h
+b.h: /usr/include/math.h
+b.h: /usr/include/setjmp.h
+bmem.m: b.h
+bmem.m: bobj.h
+bmem.m: bmem.h
+bval.m: b.h
+bval.m: bcon.h
+bval.m: bobj.h
+bval.m: bmem.h
+bval.m: bscr.h
+bval.m: bsem.h
+bval.m: bnum.h
+bval.m: Bnum.h
+bobj.m: b.h
+bobj.m: bobj.h
+bobj.m: btlt.h
+btex.m: b.h
+btex.m: bobj.h
+blis.m: b.h
+blis.m: bobj.h
+blis.m: btlt.h
+btab.m: b.h
+btab.m: bobj.h
+btab.m: btlt.h
+btlt.m: b.h
+btlt.m: bobj.h
+btlt.m: btlt.h
+bcom.m: b.h
+bcom.m: bobj.h
+bnuA.m: b.h
+bnuA.m: bcon.h
+bnuA.m: bobj.h
+bnuA.m: bnum.h
+bnuC.m: b.h
+bnuC.m: bcon.h
+bnuC.m: bobj.h
+bnuC.m: bmem.h
+bnuC.m: bnum.h
+bnuC.m: bsyn.h
+bnuG.m: b.h
+bnuG.m: bobj.h
+bnuG.m: bnum.h
+bnuI.m: b.h
+bnuI.m: bobj.h
+bnuI.m: bnum.h
+bnuQ.m: b.h
+bnuQ.m: bobj.h
+bnuQ.m: bnum.h
+bnuR.m: b.h
+bnuR.m: bcon.h
+bnuR.m: bobj.h
+bnuR.m: bnum.h
+bnum.m: b.h
+bnum.m: bcon.h
+bnum.m: bobj.h
+bnum.m: bnum.h
+bfun.m: /usr/include/math.h
+bfun.m: b.h
+bfun.m: bcon.h
+bfun.m: bobj.h
+bfun.m: bnum.h
+benv.m: b.h
+benv.m: bobj.h
+bfil.m: b.h
+bfil.m: bcon.h
+bfil.m: /usr/include/sys/types.h
+bfil.m: /usr/include/sys/stat.h
+bfil.m: bobj.h
+bfil.m: bfil.h
+bsig.m: b.h
+bsig.m: bobj.h
+bsig.m: /usr/include/signal.h
+bsig.m: berr.h
+bscr.m: b.h
+bscr.m: bobj.h
+bscr.m: bscr.h
+bscr.m: bfil.h
+berr.m: b.h
+berr.m: bobj.h
+berr.m: berr.h
+berr.m: bscr.h
+berr.m: bsyn.h
+berr.m: bsig.h
+berr.m: bfil.h
+bsyn.m: b.h
+bsyn.m: bobj.h
+bsyn.m: bscr.h
+bsyn.m: bsyn.h
+btyp.m: b.h
+btyp.m: bobj.h
+btyp.m: bsem.h
+btyp.m: btyp.h
+bloc.m: b.h
+bloc.m: bobj.h
+bloc.m: bsem.h
+bexp.m: b.h
+bexp.m: bcon.h
+bexp.m: bobj.h
+bexp.m: bmem.h
+bexp.m: bsyn.h
+bexp.m: bsem.h
+bexp.m: bsou.h
+btar.m: b.h
+btar.m: bobj.h
+btar.m: bsyn.h
+btar.m: bsem.h
+btes.m: b.h
+btes.m: bobj.h
+btes.m: bkey.h
+btes.m: bsyn.h
+btes.m: bsem.h
+bfpr.m: b.h
+bfpr.m: bobj.h
+bfpr.m: bfil.h
+bfpr.m: bsem.h
+bfpr.m: bsyn.h
+bfpr.m: bsou.h
+bsou.m: b.h
+bsou.m: bmem.h
+bsou.m: bobj.h
+bsou.m: bscr.h
+bsou.m: berr.h
+bsou.m: bkey.h
+bsou.m: bsyn.h
+bsou.m: bsem.h
+bsou.m: bfil.h
+bsou.m: bsou.h
+buni.m: b.h
+buni.m: bobj.h
+buni.m: bmem.h
+buni.m: bfil.h
+buni.m: bscr.h
+buni.m: berr.h
+buni.m: bkey.h
+buni.m: bsyn.h
+buni.m: bsou.h
+buni.m: bsem.h
+bcmd.m: b.h
+bcmd.m: bcon.h
+bcmd.m: bobj.h
+bcmd.m: bscr.h
+bcmd.m: berr.h
+bcmd.m: bkey.h
+bcmd.m: bsyn.h
+bcmd.m: bsem.h
+bcmd.m: btyp.h
+bmai.m: b.h
+bmai.m: /usr/include/sys/types.h
+bmai.m: bobj.h
+bmai.m: bmem.h
+bmai.m: bscr.h
+bmai.m: berr.h
+bmai.m: bfil.h
+bmai.m: bsig.h
+bmai.m: bsyn.h
+bmai.m: bsem.h
+bmai.m: bsou.h
+Bfun.m: b.h
+Bfun.m: bobj.h
+Bfun.m: bsem.h
+Bfun.m: Bnum.h
+Bnum.m: b.h
+Bnum.m: bcon.h
+Bnum.m: bobj.h
+Bnum.m: bsyn.h
+Bnum.m: Bnum.h
+Bval.m: b.h
+Bval.m: bcon.h
+Bval.m: bobj.h
+Bval.m: bmem.h
+Bval.m: bscr.h
+Bval.m: bsem.h
+Bval.m: bnum.h
+Bval.m: Bnum.h
+# DEPENDENCIES MUST END AT END OF FILE
+# IF YOU PUT STUFF HERE IT WILL GO AWAY
+# See make depend above
