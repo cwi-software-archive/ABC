@@ -1,0 +1,221 @@
+.TL
+The Format of the B Parse-tree
+.br
+(Revised Second Edition)
+.AU
+Steven Pemberton
+.AB
+This document describes and defines the format of the parse-tree
+to be used in the Mark 1 system.
+The differences and corrections from the previous editions are:
+.IP 1
+the definition of the Unparsed node has been changed.
+This encompasses all ambiguous expressions and tests, such as
+a\ b\ c; a\ b\ c\ d\ e; a\ +\ 1; and a\ @\ b\ c\ d.
+.IP 2
+the Trim node has been expanded into Behead and Curtail nodes
+.IP 3
+Share, For, Some'in (etc), and Some'parsing (etc) now have a target
+subtree, instead of a tags subtree; there are now no tags subtrees
+.IP 4
+the actuals compound of a User'command and the formals compound
+of a How'to are now linked lists (ie nested compounds) instead of straight
+compounds
+.IP 5
+Yields and Tests now have two target subtrees instead of one tags subtree
+.IP 6
+order tests now have an expression or test for left-hand subtree,
+not just an expression
+.IP 7
+Report, Some'in (etc), and Some'parsing (etc) now have a test (previously
+erroneously a target) as subtree.
+.IP 8
+because of the problem with standalone comments between SELECT and its
+first test, a 'test-suite' with a Nil test subtree is now used to accomodate
+such comments. Consequently an 'Else' node has been introduced.
+.IP 9
+a 'compound' is a bracketed expression. A 'collateral' represents a number
+of expressions separated by commas.
+.AE
+.SH
+Introduction
+.PP
+A B parse-tree consists of an (illegal) B value:
+each node consists of a compound that may contain other compounds,
+but in general each type of node has a different number of fields.
+Additionally, some compounds may only have one field.
+However, any given type of node always has a fixed number of fields.
+Each node has a first field, which is numeric and indicates the node-type;
+other fields depend on the node type.
+.DS
+Example
+
+PUT a IN b \\\\comment 1
+IF a>0:    \\\\comment 2
+    WRITE a / \\\\comment 3
+.DE
+gives
+.DS
+   (Suite, A, " \\\\comment 1", B)
+A= (Put, (Tag, "a"), (Tag, "b"))
+B= (Suite, (If, C, D), "    \\\\comment 2", NIL)
+C= (Gt, (Tag, "a"), (Number, 0))
+D= (Suite, E, " \\\\comment 3", NIL)
+E= (Write, 0, (Tag, "a"), 1)
+.DE
+Note that comments are usually held as a field of a Suite node, and that
+they include the spaces between the end of the command and the start of the
+comment, as well as the comment mark.
+Other things to note are:
+.IP
+SHARE is treated as if it were a command;
+.IP
+The Newline Count fields of Write nodes count the number of newline signs
+before and after the expression;
+.IP
+In some cases it is not possible to parse a string of tags uniquely:
+for example PUT\ a\ b\ c\ IN\ d could be parsed as
+PUT\ (a)\ b\ (c) or PUT\ a\ (b\ (c)).
+In this case the Unparsed node is used:
+(Unparsed,\ "a",\ "b",\ (Tag,\ "c")).
+However this is only until the tags can be identified: the interpreter will
+never execute such a node.
+
+An ambiguity can arise in several ways.
+In an expression consisting n tags, n>2,
+the first tag may be an operand, and the second a dyadic function,
+or both may be monadic functions;
+however, the last tag must be an operand, and if there other tags
+they can only be be monadic functions.
+
+However, this ambiguity also occurs if the second item is "+", "-", or "#":
+"a+1" may be parsed as "a(+1)" or "(a)+(1)".
+A similar ambiguity is caused by, eg, "a\ @\ b\ c\ d"
+which may be parsed "(a)\ @\ (b\ c\ d)" or "(a\ @\ b)\ c\ (d)".
+
+In a test the situation is worse, because there the predicates cannot be
+be distinguished from the functions.
+.LP
+As a reminder, here is a list of the B Commands; this is followed by the
+definition of the parse-tree.
+.DS
+Ordinary				Special
+
+PUT expr IN target			WRITE / expr /
+INSERT expr IN target		READ target EG expr
+REMOVE expr FROM target		READ target RAW
+CHOOSE target FROM expr
+DRAW target
+SET'RANDOM expr
+DELETE target
+CHECK test
+SHARE target
+
+IF test: suite				SELECT:
+WHILE test: suite			    test: suite
+FOR target IN expr: suite			    ...
+					    ELSE: suite
+QUIT
+RETURN expr				HOW'TO ...
+REPORT test				TEST ...
+SUCCEED				YIELD ...
+FAIL
+
+USER'COMMAND ...			refinement: suite
+.DE
+.DS
+\fBParse Tree			Abbreviations\fR
+
+(Put, e, t)			e= expression
+(Insert, e, t)			t= target
+(Remove, e, t)		c= test (=condition)
+(Choose, t, e)			s= (command-) suite
+(Draw, t)
+(Set'random, e)		A comment is a text or Nil.
+(Delete, t)
+(Check, c)
+(Share, t)
+
+(Write, newline count, e, newline count)
+(Read, t, e)
+(Read'raw, t)
+
+(If, c, s)
+(While, c, s)
+(For, t, e, s)
+
+(Select, test suite)
+(Test-suite, c, comment, suite, next test or else) \fI{c=Nil for a stand-alone comment}\fR
+(Else, comment, suite)
+
+(Quit)
+(Return, e)
+(Report, c)
+(Succeed)
+(Fail)
+
+(User'command, "NAME", actuals compound)  ("KEYW", e, next) \fI{e=Nil if absent}\fR
+.DE
+.DS
+\fBUnits and suites\fR
+
+(How'to, "NAME", formals compound, comment, s, refinement suite)
+		("KEYW", "tag", next) \fI{"tag"="" if absent}\fR
+(Yield, "name", t, comment, s, refinement suite)
+(Test,  "name", t, comment, s, refinement suite)
+
+(Suite, command, comment, next suite) \fI{command=Nil for stand-alone comment}\fR
+(Refinement, "Name", comment, s, next refinement)
+.DE
+.DS
+\fBExpressions\fR
+
+(Compound, e)
+(Collateral, expr compound)	(e, e, ...)
+(Monf, "name", e)
+(Dyaf, "name", e, e)
+(Tag, "name")
+(Number, v)
+(Textdis, "lit" or e, next)
+(Elt)
+(List'dis, expr compound)
+(Range'dis, e, e)
+(Tab'dis, expr compound)
+(Selection, e, e)
+(Behead, e, e)
+(Curtail, e, e)
+(Unparsed, texts compound) \fI{only for incomplete units}\fR
+.DE
+.DS
+\fBTargets\fI {actually only a subset of expressions}\fR
+
+(Compound, t)
+(Collateral, target compound)	(t, t, ...)
+(Tag, "name")
+(Selection, t, e)
+(Behead, t, e)
+(Curtail, t, e)
+.DE
+.DS
+\fBTests\fR
+
+(And, c, c)
+(Or, c, c)
+(Not, c)
+(Some'in, t, e, c)
+(Each'in, t, e, c)
+(No'in, t, e, c)
+(Some'parsing, t, e, c)
+(Each'parsing, t, e, c)
+(No'parsing, t, e, c)
+(Tag, "name")
+(Monprd, "name", e)
+(Dyaprd, "name", e, e) \fI{includes in / not'in}\fR
+(Lt, ec, e)
+(Le, ec, e)
+(Gt, ec, e) \fI{ec= expression or test, for eg a<b or a<b<c}\fR
+(Ge, ec, e)
+(Eq, ec, e)
+(Ne, ec, e)
+(Unparsed, texts compound)
+.DE

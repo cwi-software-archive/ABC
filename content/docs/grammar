@@ -1,0 +1,137 @@
+ITEM:: identifier; target; expression.
+collateral-TYPE-ITEM: TYPE-ITEM; where TYPE is compound-with-TYPE1-TYPES-fields, TYPE1-TYPES-ITEM.
+TYPE-ITEM: basic-TYPE-ITEM; open-sign, collateral-TYPE-ITEM, close-sign.
+TYPE-TYPES-ITEM: TYPE-ITEM, comma-sign, TYPES-ITEM.
+optional-NOTION: ; NOTION.
+new-line: optional-comment, new-line-proper, indent.
+comment: optional-new-line-proper, optional-spaces, comment-sign, comment-body, optional-further-comment.
+further-comment: new-line-proper, optional-spaces, comment-sign, comment-body, optional-further-comment.
+spaces: space, optional-spaces.
+TYPE:: numeric; textual; COMPOUND; LIST; TABLE; poly-TAG.
+COMPOUND:: compound-with-TYPE-TYPES-fields.
+TYPES:: TYPE; TYPE-TYPES.
+LIST:: list-of-TYPE.
+TABLE:: table-with-TYPE1-keys-TYPE2-associates.
+refinement-suite: new-line, refinement, optional-refinement-suite.
+how-to-unit: how-to keyword, formal-user-defined-command, colon-sign, command-suite, optional-refinement-suite.
+formal-user-defined-command: FIRST-keyword, optional-formal-tail.
+formal-tail: formal-parameter, optional-formal-trailer; formal-trailer.
+formal-trailer: NEXT-keyword, optional-formal-tail.
+formal-parameter: basic-TYPE-identifier.
+ADIC:: zeroadic; monadic; dyadic.
+yield-unit: yield-keyword, formal-TYPE-ADIC-formula, colon-sign, command-suite, optional-refinement-suite.
+formal-zeroadic-formula: zeroadic-function.
+formal-monadic-formula: monadic-function, formal-operand.
+formal-dyadic-formula: formal-operand, dyadic-function, formal-operand.
+formal-operand: TYPE-identifier.
+test-unit: test-keyword, formal-ADIC-proposition, colon-sign, command-suite, optional-refinement-suite.
+formal-zeroadic-proposition: zeroadic-predicate.
+formal-monadic-proposition: monadic-predicate, formal-operand.
+formal-dyadic-proposition: formal-operand, dyadic-predicate, formal-operand.
+refinement: command-refinement; expression-refinement; test-refinement.
+command-refinement: FIRST-keyword, colon-sign, command-suite.
+expression-refinement: basic-TYPE-identifier, colon-sign, command-suite.
+test-refinement: NAMED-tag, colon-sign, command-suite.
+command-suite: simple-command; increase-indentation, optional-allow-heading, optional-command-sequence, decrease-indentation.
+allow-heading: new-line, allow-keyword, collateral-TYPE-identifier, optional-allow-heading.
+command-sequence: new-line, command, optional-command-sequence.
+command: simple-command; control-command.
+simple-command: check-command; write-command; read-command; put-command; choose-command; draw-command; set-random-command; remove-command; insert-command; delete-command; terminating-command; user-defined-command; refined-command.
+terminating-command: quit-command; return-command; report-command; succeed-command; fail-command.
+check-command: check-keyword, test.
+write-command: write-keyword, new-liners; write-keyword, optional-new-liners, collateral-TYPE-expression, optional-new-liners.
+new-liners: new-line-sign, optional-new-liners.
+read-command: read-keyword, collateral-TYPE-target, eg-keyword, collateral-TYPE-expression.
+put-command: put-keyword, collateral-TYPE-expression, in-keyword, collateral-TYPE-target.
+draw-command: draw-keyword, numeric-target.
+choose-command: where TYPE2 lodges TYPE1, choose-keyword, collateral-TYPE1-target, from-keyword, TYPE2-expression.
+where TYPE2 lodges TYPE1: where TYPE2 is textual and TYPE1 is textual; where TYPE2 is list-of-TYPE1; where TYPE2 is table-with-TYPE0-keys-TYPE1-associates.
+set-random-command: set-random-keyword, collateral-TYPE-expression.
+remove-command: remove-keyword, collateral-TYPE-expression, from-keyword, list-of-TYPE-target.
+insert-command: insert-keyword, collateral-TYPE-expression, in-keyword, list-of-TYPE-target.
+delete-command: delete-keyword, collateral-TYPE-target.
+quit-command: quit-keyword.
+return-command: return-keyword, collateral-TYPE-expression.
+report-command: report-keyword, test.
+succeed-command: succeed-keyword.
+fail-command: fail-keyword.
+user-defined-command: FIRST-keyword, optional-tail.
+tail: actual-parameter, optional-trailer; trailer.
+actual-parameter: collateral-TYPE-ITEM.
+trailer: NEXT-keyword, optional-tail.
+refined-command: FIRST-keyword.
+control-command: if-command; select-command; while-command; for-command.
+if-command: if-keyword, test, colon-sign, command-suite.
+select-command: select-keyword, colon-sign, alternative-suite.
+alternative-suite: increase-indentation, new-line, alternative-sequence, decrease-indentation.
+alternative-sequence: single-alternative; else-alternative; single-alternative, new-line, alternative-sequence.
+single-alternative: test, colon-sign, command-suite.
+else-alternative: else-keyword, colon-sign, command-suite.
+while-command: while-keyword, test, colon-sign, command-suite.
+for-command: for-keyword, in-ranger, colon-sign, command-suite.
+in-ranger: collateral-textual-identifier, in-keyword, textual-expression; collateral-TYPE-identifier, in-keyword, list-of-TYPE-expression; collateral-TYPE2-identifier, in-keyword, table-with-TYPE1-keys-TYPE2-associates-expression.
+basic-TYPE-expression: simple-TYPE-expression; TYPE-ADIC-formula.
+simple-TYPE-expression: TYPE-constant; TYPE-target-content; TYPE-trimmed-text; TYPE-table-selection; TYPE-display; TYPE-refined-expression.
+tight-TYPE-expression: simple-TYPE-expression; TYPE-zeroadic-formula; open-sign, collateral-TYPE-expression, close-sign.
+right-TYPE-expression: tight-TYPE-expression; TYPE-monadic-formula.
+DIGIT:: zero; one; two; three; four; five; six; seven; eight; nine.
+numeric-constant: exact-constant; approximate-constant.
+exact-constant: integral-part, optional-fractional-part; integral-part, point-sign; fractional-part.
+integral-part: DIGIT-sign; integral-part, DIGIT-sign.
+fractional-part: point-sign, DIGIT-sign; fractional-part, DIGIT-sign.
+approximate-constant: optional-exact-constant, exponent-part.
+exponent-part: e-keyword, optional-plusminus, integral-part.
+plusminus: plus-sign; minus-sign.
+TYPE-target-content: basic-TYPE-identifier.
+TRIM:: behead; curtail.
+textual-trimmed-text: tight-textual-expression, TRIM-sign, right-numeric-expression.
+TYPE2-table-selection: tight-table-with-TYPE1-keys-TYPE2-associates-expression, TYPE1-key-selector.
+TYPE1-key-selector: sub-sign, collateral-TYPE1-expression, bus-sign.
+QUOTE:: apostrophe; quote.
+CHARACTER:: space; exclamation; quote; number; dollar; percent; ampersand; apostrophe; open; close; times; plus; comma; minus; point; over; DIGIT; colon; enumeration; less-than; equals; greater-than; question; behead; capital-LETTER; sub; comment; bus; join; underscore; convert; LETTER; curly-open; curtail; curly-close; about.
+LETTER:: a; b; c; d; e; f; g; h; i; j; k; l; m; n; o; p; q; r; s; t; u; v; w; x; y; z.
+textual-display: QUOTE-sign, optional-style-QUOTE-textual-body, QUOTE-sign.
+style-QUOTE-textual-body: style-QUOTE-textual-item, optional-style-QUOTE-textual-body.
+style-QUOTE-textual-item: unless CHARACTER is QUOTE or CHARACTER is convert, CHARACTER-sign; where CHARACTER is QUOTE or CHARACTER is convert, CHARACTER-image; conversion.
+CHARACTER-image: CHARACTER-sign, CHARACTER-sign.
+conversion: convert-sign, collateral-TYPE-expression, convert-sign.
+LIST-display: curly-open-sign, LIST-body, curly-close-sign.
+LIST-body: optional-enumerated-LIST-filler; where LIST is list-of-TYPE, where TYPE is numeric or TYPE is textual, TYPE-bound, through-sign, TYPE-bound.
+enumerated-NOTION: NOTION; NOTION, enumeration-sign, enumerated-NOTION.
+list-of-TYPE-filler: TYPE-expression.
+TYPE-bound: TYPE-expression.
+TABLE-display: curly-open-sign, TABLE-body, curly-close-sign.
+TABLE-body: optional-enumerated-TABLE-filler.
+table-with-TYPE1-keys-TYPE2-associates-filler: TYPE1-key-selector, colon-sign, TYPE2-expression.
+TYPE-zeroadic-formula: zeroadic-function.
+TYPE-monadic-formula: monadic-function, actual-operand.
+TYPE-dyadic-formula: actual-operand, dyadic-function, actual-operand.
+zeroadic-function: NAMED-tag.
+monadic-function: about-sign; plus-sign; minus-sign; numerator-sign; denominator-sign; number-sign; NAMED-tag.
+dyadic-function: plus-sign; minus-sign; times-sign; over-sign; to-the-power-sign; join-sign; repeat-text-sign; adjust-left-sign; center-sign; adjust-right-sign; number-sign; NAMED-tag.
+actual-operand: TYPE-expression.
+TYPE-refined-expression: basic-TYPE-identifier.
+basic-TYPE-target: TYPE-identifier; TYPE-trimmed-text-target; TYPE-table-selection-target.
+basic-TYPE-identifier: NAMED-tag.
+textual-trimmed-text-target: textual-target, TRIM-sign, right-numeric-expression.
+TYPE2-table-selection-target: table-with-TYPE1-keys-TYPE2-associates-target, TYPE1-key-selector.
+test: tight-test; conjunction; disjunction; negation; quantification.
+tight-test: open-sign, test, close-sign; order-TYPE-test; ADIC-proposition; refined-test.
+right-test: tight-test; negation; quantification.
+ORDER:: less-than; at-most; equals; unequal; at-least; greater-than.
+order-TYPE-test: TYPE-expression, ORDER-sign, TYPE-expression; order-TYPE-test, ORDER-sign, TYPE-expression.
+zeroadic-proposition: zeroadic-predicate.
+monadic-proposition: monadic-predicate, actual-operand.
+dyadic-proposition: actual-operand, dyadic-predicate, actual-operand.
+ADIC-predicate: NAMED-tag.
+refined-test: NAMED-tag.
+conjunction: tight-test, and-keyword, conjunct.
+conjunct: right-test; conjunction.
+disjunction: tight-test, or-keyword, disjunct.
+disjunct: right-test; disjunction.
+negation: not-keyword, right-test.
+TEXTUALS:: textual-textual; textual-TEXTUALS.
+quantification: quantifier, ranger, has-keyword, right-test.
+quantifier: each-keyword; some-keyword; no-keyword.
+ranger: in-ranger; parsing-ranger.
+parsing-ranger: TEXTUALS-identifier, parsing-keyword, textual-expression.

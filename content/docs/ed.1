@@ -1,0 +1,129 @@
+.TH B-EDITOR 1 local
+.SH NAME
+B-editor \- the B editor Mark 0
+.SH SYNOPSIS
+.I "(UNIX shell:)"
+.br
+BEDITOR=/b/guido/bin/Bed
+.br
+.B export
+BEDITOR
+.br
+.B b
+[
+.I flags
+]
+
+.I "(C shell:)"
+.br
+.B setenv
+BEDITOR /b/guido/bin/Bed
+.br
+.B b
+[
+.I flags
+]
+
+.I "(Without use of the B interpreter:)"
+.br
+.B /b/guido/bin/Bed
+[
+.BI + line
+] [
+.I file
+]
+.SH DESCRIPTION
+The B editor is a pilot implementation of a structure editor
+for the B language.
+Instead of a cursor it uses a
+.I "focus of attention,"
+which may be any reasonable program fragment from a single character
+to any number of commands.
+The focus is shown in inverse video or underlined.
+.PP
+The current version only supports two terminal types: the HP 2621[A]
+and the HP 2640B.
+For other terminal types (as indicated by the environment variable
+TERM) it internally calls
+.I vi.
+.SH FILES
+/b/guido/bin/Bed
+.I "   shell script for start-up"
+.br
+/b/guido/bin/Beditor
+.I "   binary"
+.br
+/b/guido/bed/*
+.I "   sources"
+.SH SEE ALSO
+B(1)
+.br
+The B editor Mark 0 \- Directions for use
+.SH DIAGNOSTICS
+Are shown on the bottom line of the screen, and accompanied
+by beeps.
+They are intended to be self-explanatory.
+Diagnostics placed in square brackets [ ] are debug messages
+and may indicate failure of operation.
+.PP
+Fatal errors are accompanied by core dumps and usually by the message
+.br
+`Fatal error:
+.RI + "line file'"
+.SH BUGS
+When reading a B unit which was prepared with with another
+editor (e.g.,
+.IR vi ),
+it sometimes gets confused by multiple spaces in or before expressions,
+and then ignores the rest of the line.
+.br
+When a keyword is changed,
+holes that were already filled in disappear
+(e.g., PUT a IN b changes into INSERT ? IN ?).
+.br
+Empty command-suites are not allowed (remedy: put a comment
+on a new line in them, e.g. \\pass).
+.bp
+.SH COMMAND SUMMARY
+Function keys
+.RI ( f1-f8 ):
+on the HP 2621, hold down SHIFT and the named arrow key;
+on the HP 2640B, hold down CONTROL and the named function key.
+
+.TS
+l l l l
+l li l l.
+Name	Key	Arrow	Description
+
+WIDEN	f1	up left	Make the focus larger
+NARROW	f2	down left	Make the focus smaller
+SHRINK-L	f3	roll up	Make it smaller on the left
+SHRINK-R	f4	roll down	Make it smaller on the right
+
+EXTEND-L	f5	up	Extend it to the left
+PREVIOUS	f6	left	Move it left
+NEXT	f7	right	Move it right
+EXTEND-R	f8	down	Extend it to the right
+.TE
+
+Other commands: hold down control while pressing the named letter,
+or press the named special key (TAB, RETURN, BACKSPACE).
+
+.TS
+l l l.
+Name	Key	Description
+
+AFTER	control-A	Insert a hole After the focus
+BEFORE	control-B	Insert a hole Before the focus
+COPY	control-C	Copy to/from `copy buffer'
+DELETE	control-D	Delete everything in the focus
+GOTO	control-G	Go to current cursor position
+REDRAW	control-L	Clear the screen and redraw it
+UNDO	control-U	Undo last change(s)
+EXIT	control-X	Leave the editor
+
+ACCEPT	TAB	Go to next hole
+RETURN	RETURN	Insert new line
+BACKSPACE	BACKSPACE	Erase last character typed,
+		or equivalent to PREVIOUS
+.TE

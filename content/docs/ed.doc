@@ -1,0 +1,321 @@
+.TL
+The B editor Mark 0 \- Directions for use
+.AU
+Guido van Rossum
+.IP
+.I
+Don't help me, I can save myself
+.br
+If I'm incomplete don't fill the gaps
+.br
+Save me from the people who would save me from my sin
+.br
+They got muscle for brains.
+.R
+.LP
+(`Muscle for Brains', from: Gang of Four,
+.I "`Songs of the Free'.)"
+.NH
+BASICS
+.NH 2
+The terminal
+.LP
+You
+.I must
+use one of the following two terminals: HP 2621[A] or HP 2640B.
+Baud rate must be at least 2400 baud, the higher the better.
+If your terminal is of another type (as indicated by the shell
+variable TERM),
+.I vi
+is automatically called instead of the B editor.
+.NH 3
+Function keys
+.LP
+These are special keys on the terminal named
+.I "f1, f2, ..."
+through
+.I f8.
+They transmit a special code to the computer.
+Unfortunately, on the terminals we have, they must never
+be used alone \- to transmit something, SHIFT or CONTROL
+must be pressed together with the function keys.
+.IP "HP 2621:" 10
+Use the SHIFT key together with the arrow
+keys; labels are on the bottom line of the screen.
+.IP "HP 2640B:" 10
+Use the
+CONTROL
+key together with the keys labeled
+.I "f1 ... f8."
+.NH 2
+Usage
+.LP
+Before you can use the B editor from the B interpreter, you must
+set the environment variable BEDITOR to its full pathname.
+Do this before you enter B.
+The B editor is the automatically invoked on all `:' commands.
+.LP
+Standard shell users (prompt symbol usually a `$'):
+.DS
+BEDITOR=/b/guido/bin/Bed
+export BEDITOR
+.DE
+`C shell' users (prompt symbol usually a `%'):
+.DS
+setenv BEDITOR /b/guido/bin/Bed
+.DE
+It is most convenient to put these lines in your
+.I .profile
+(standard shell) or
+.I .login
+file (C shell).
+.NH 2
+Leaving the editor
+.LP
+Control-X
+saves the edit buffer and normally leaves the editor.
+However, if there are unfinished commands,
+the buffer is saved but the editor is not left.
+If you must leave the editor in such a case, 
+first save using
+control-X
+and then abort it using
+DEL.
+.PP
+DEL
+or
+BREAK
+(i.e., a
+.UX
+.I interrupt
+signal) leaves the editor without saving.
+(This may be necessary if the editor has clobbered your program.)
+.NH
+EDITING
+.NH 2
+Entering text
+.LP
+You can type plain B commands, ignoring what happens on the screen
+as long as the editor doesn't beep at you.
+End each line with RETURN.
+Indentation is automatic.
+To decrease the indentation, press RETURN once more.
+BACKSPACE erases the last character typed, but only in the last
+identifier, number, text or keyword.
+Redundant spaces are usually ignored, and on some places
+(after commas and semicolons) spaces are inserted automatically.
+You will find that in most places where upper case is required,
+lower case also works and is converted to upper case.
+Anyway, only the first letter of a keyword ever needs to be typed
+in upper case.
+.NH 2
+Suggestions
+.LP
+When you type the first letters of a keyword, the editor tries
+to guess the remainder of the command, and shows this to the right
+of the focus (= cursor).
+If you continue typing, you overwrite the suggestion, which is
+changed to conform to what you type, and may eventually disappear
+(if the keyword is not known to the editor).
+If you are pleased with a suggestion, press ACCEPT (TAB);
+this moves the focus to the first hole in the command;
+or press RETURN to proceed to the next line.
+.PP
+To a limited extent, this mechanism also works for SOME,
+IN, OR, NOT etcetera in tests (here you must enter the first
+letter in upper case!).
+.PP
+As another form of suggestion, the editor always displays
+the matching close delimiter to the right of the focus
+whenever you type a left parenthesis, brace, bracket or quote.
+It also checks the use of commas and semicolons, so that you cannot
+accidentally use one where the other is required.
+(There is a penalty: you cannot change the parenthesis structure
+of an expression by simply deleting a parenthesis and inserting
+one elsewhere, for instance.)
+.NH 2
+Focus and holes
+.LP
+The
+.I "focus (of attention)"
+is the area on the screen affected by most editing commands.
+It is displayed in inverse video (HP 2640B) or underlined (HP 2621).
+The terminal's blinking cursor is normally positioned on the first
+character of the focus.
+If the focus is only one character in size, the terms focus
+and cursor can be used interchangeably (but see GOTO below).
+.PP
+A
+.I hole
+is a place-holder for a piece of program (identifier, expression,
+command etc.) which has not yet been specified.
+It is displayed on the screen as a question mark.
+Text can only be inserted if the focus is a single hole;
+the focus automatically moves to the right as text is entered.
+Some holes disappear when the focus is moved away from them;
+they can be recreated using the AFTER or BEFORE commands described
+below.
+Other holes cannot disappear; the editor insists that they are
+filled (though you can move the focus away from them).
+.NH 2
+Focus control commands (function keys)
+.LP
+Place and form of the focus are affected by the function key
+commands listed below.
+(When the focus contains one or more entire lines, read `down'
+for `right' and `up' for `left' in the descriptions of the
+focus movements.)
+.TS
+l l l l
+l li l l.
+Name	Key	Arrow	Description
+
+WIDEN	f1	up left	Make the focus larger
+NARROW	f2	down left	Make the focus smaller
+SHRINK-L	f3	roll up	Make it smaller on the left
+SHRINK-R	f4	roll down	Make it smaller on the right
+
+EXTEND-L	f5	up	Extend it to the left
+PREVIOUS	f6	left	Move it left
+NEXT	f7	right	Move it right
+EXTEND-R	f8	down	Extend it to the right
+.TE
+(See the section on function keys above for how to transmit these.
+The `arrow' column is meant for the HP 2621 terminal.)
+.NH 2
+Random focus positioning (GOTO, control-G)
+.LP
+It is possible to create a one-character focus at any
+position on the screen: move the terminal's blinking cursor
+to the desired position using the (unshifted!) arrow keys,
+and then press control-G.
+.PP
+.I Warning:
+when the blinking cursor is moved away from the focus,
+do not press any other keys except the arrow keys,
+control-G or control-L (redraw).
+.NH 2
+Editing commands
+.LP
+The following commands allow you to insert and delete text.
+Note that you can always automatically insert text whenever the focus
+occupies exactly one hole.
+.TS
+l l l.
+Name	Key	Description
+
+AFTER	control-A	Insert a hole After the focus
+BEFORE	control-B	Insert a hole Before the focus
+DELETE	control-D	Delete everything in the focus
+
+ACCEPT	TAB	Go to next hole (may wrap around)
+RETURN	RETURN	Insert new line, or decrease indent
+BACKSPACE	BACKSPACE	Erase last character typed,
+		or equivalent to PREVIOUS
+.TE
+Note that the only way to decrease the indentation
+(i.e., continue a command suite that started more to the
+left that the current one) is to use RETURN.
+For instance, when the screen shows
+.DS
+IF some'test:
+    IF another'test:
+        PUT expression IN target
+        [?]
+.DE
+with the focus positioned at the bottom line,
+pressing RETURN changes this into
+.DS
+IF some'test:
+    IF another'test:
+        PUT expression IN target
+    [?]
+.DE
+Another RETURN would move the focus to the left margin.
+.NH 2
+Moving text around (COPY, control-C)
+.LP
+For the purpose of moving and duplicating text, there is a hidden
+.I "copy buffer"
+which can contain one program fragment of arbitrary size.
+The COPY command, typed as control-C, copies text either
+from the focus
+.I to
+the copy buffer, or
+.I from
+the copy buffer to the focus.
+.PP
+This depends on the contents of the focus.
+If the focus contains some text (even one character),
+that text is copied
+to the copy buffer (erasing its previous contents).
+If the focus only contains a hole,
+the contents of the copy buffer are inserted at that place.
+Since it also remains in the copy buffer, it can be
+replicated as many times as needed.
+.PP
+In combination with DELETE, COPY can be used to move text
+or to change the indentation level of commands.
+.PP
+Of course, full syntax checking is performed during an insertion
+from the copy buffer.
+.NH
+MISCELLANEOUS COMMANDS
+.NH 2
+Undo unwanted changes (UNDO, control-U)
+.LP
+If you accidentally changed some portion of the program,
+you can change it back using the UNDO command,
+typed as control-U.
+The editor keeps a history of changes after each keystroke,
+and the UNDO command can go back any number of steps in this
+history.
+.PP
+The initial UNDO command goes back one step.
+To go back more than one step, repeatedly press the space bar
+until you are satisfied; then press RETURN.
+While in this `undo mode', any other key is treated as an error
+and ends the undo mode.
+.PP
+If you pressed the space bar too often, you can redo the
+undone changes by entering another UNDO command;
+each step then undoes one step of the previous UNDO command.
+.PP
+Note that only a history of changes is kept; focus movements
+cannot be undone.
+.NH 2
+Screen redraw (control-L)
+.LP
+If the screen is clobbered, e.g. by someone else using
+.I write(1)
+to your terminal or because you accidentally hit a key that affects
+the screen but doesn't transmit anything to the computer
+(e.g.,
+.I "clear screen),"
+by a data transmission error
+or if you just don't trust what is on the screen anymore,
+press control-L.
+This clears the screen and redraws it as the computer thinks
+it should be.
+.SH
+CONTROL-KEY COMMAND SUMMARY
+.LP
+.TS
+l l l.
+Name	Key	Description
+
+AFTER	control-A	Insert a hole After the focus
+BEFORE	control-B	Insert a hole Before the focus
+COPY	control-C	Copy to/from the `copy buffer'
+DELETE	control-D	Delete everything in the focus
+GOTO	control-G	Go to cursor
+REDRAW	control-L	Clear the screen and redraw it
+UNDO	control-U	Undo last change(s)
+EXIT	control-X	Leave the editor
+
+ACCEPT	TAB	Go to next hole
+RETURN	RETURN	Insert new line
+BACKSPACE	BACKSPACE	Erase last character typed,
+		or equivalent to PREVIOUS
+INTERRUPT	DEL or BREAK	Leave without saving
+.TE
