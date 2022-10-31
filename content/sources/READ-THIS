@@ -1,0 +1,24 @@
+These files constitute a pre-release of the B system.
+A new, faster system is in preparation, and if you wish to be informed of
+the new system's availability, just let us know how you got on with porting
+this one.
+
+There are two versions of this B system, a `large' and a `small' version.
+The small version fits on a PDP/11 with split I and D spaces, but doesn't
+contain the unbounded arithmetic package. The large version needs more code
+space than will fit on an 11, but does implement unbounded exact numbers.
+
+The directory `sources' contains the files for both the large and small
+B systems.
+The special files for the small system are called B???.c and all others
+are either common, or for the large system. See Makefile for the definition
+of COMMON, BIG and SMALL for the lists.
+Actually Bval.c and bval.c are just copies of the same file.
+
+To make a system, use either `make bnew' or `make bsmall'.
+For PDP's the makefile needs one change for LDFLAGS.
+
+The directory `doc' contains some documentation:
+use nroff -man for b.1, and nroff -ms for on.mark0.
+In the directory `test' you will find some small test units.
+The directory `lib' contains some shell commands that we use to run B.

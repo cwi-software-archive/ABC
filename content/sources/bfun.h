@@ -1,0 +1,32 @@
+/* Definitions exported by bfun.c */
+
+value sum();
+value diff();
+value negated();
+value prod();
+value quot();
+value modulo();
+value floorf();
+value ceilf();
+value round0();
+value round();
+value mod();
+value power();
+value absval();
+value signum();
+value numerator();
+value denominator();
+value approximate();
+double random();
+value root1();
+value sin1();
+value cos1();
+value tan1();
+value atn1();
+value exp1();
+value log1();
+value root2();
+value atn2();
+value log2();
+value pi();
+value e();

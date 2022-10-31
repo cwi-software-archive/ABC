@@ -1,0 +1,44 @@
+Overview of the sources.
+
+The B system sources can be divided into two parts, the part implementing B
+values, and the interpreter proper.
+
+B Values.
+These are dealt with by the following files.
+
+bmem.c	Low level memory management
+bval.c	High level memory management for B values, copying, releasing etc
+btex.c	Texts
+blis.c	Lists
+btab.c	Tables
+btlt.c	Generic operations on texts, lists and tables
+bnu[ACGIQRm].c bfun.c 
+	Numbers
+bobj.c	Generic operations on all B values (compare etc)
+
+The Interpreter
+
+benv.c	Environments, and the system state
+bfil.c	The interface with the file system
+bsig.c	Signal and interrupt handling
+bscr.c	Output routines, mostly implementing the write command
+berr.c	Error message output
+bsou.c	Maintaining units and values on external files
+bloc.c	The semantics of locations, the put command etc
+btyp.c	Type matching tests
+bsyn.c	General syntax routines
+bexp.c btes.c btar.c
+	The syntax and semantics of expressions, tests and targets
+bfpr.c	Calling system defined functions and predicates
+buni.c	Calling user defined units
+bcmd.c	The syntax and semantics of commands
+bmai.c	The main program
+
+Most of these have their own header files, but there are also these extra ones:
+
+b.h	Type definitions used throughout the system
+bcon.h	Configuration file
+bkey.h	B keywords
+
+Most of the machine/operating system dependencies are built into the files
+bfil.c, bsig.c, bcon.h.

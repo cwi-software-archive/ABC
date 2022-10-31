@@ -1,0 +1,112 @@
+#!/bin/sh
+set -${SHFLAGS=$-}
+echo $USER "`date`" "$0 $*" >>/b/guido/tmp/B_usage
+
+PATH=/usr/ucb:/bin:/usr/bin
+LIB=/usr/lib/b
+
+GUIDO=/b/guido
+TIMO=/b/timo
+STEVEN=/b/steven
+LAMBERT=/b/lambert
+
+VI4=$LAMBERT/ex/vi4
+BEMACS=$TIMO/lib/bemacs
+: ${BNEW=$GUIDO/bin/bnew}
+
+while :
+do
+	case $1 in
+	-e) BEDITOR=$GUIDO/bin/Bed; export BEDITOR;;
+	-E) BEDITOR=$GUIDO/bin/n.Bed; export BEDITOR;;
+	-i)	$LIB/b_i $*; exit;;
+	-L) case $2 in
+		/*) WORKS="$WORKS $2";;
+		-*|'') echo '*** -L flag without second argument'; exit 1;;
+		*) WORKS="$WORKS `pwd`/$2";;
+		esac
+		shift;;
+	-l)	$LIB/b_l;;
+	-o)	$LIB/b_o $*; exit;;
+	-p)	$LIB/b_p; exit;;
+	-S)	BNEW=$STEVEN/impl/bnew;;
+	-t) BNEW=$STEVEN/impl/new/bnew;;
+	-x)	BEDITOR=$BEMACS; export BEDITOR;;
+	-v)	BEDITOR=$VI4; export BEDITOR;;
+	-*)	{
+		X=`basename $0`
+		echo "*** Unrecognized flag: \"$1\""
+		echo "*** To enter b type \"$X\""
+		echo "*** to enter b with the b editor, type \"$X -e\""
+		} >&2
+		exit 1;;
+	*)  break;;
+	esac
+	shift
+done
+
+case $# in
+0) ;;
+1) WORKS="$WORKS `pwd`"; cd $1;;
+*) echo "*** More than 1 directory argument: \"$*\"" 1>&2
+   exit 1;;
+esac
+
+for I in $WORKS .
+do
+	LS=`echo $I/[\'\"\<\>]?*`
+	case "$LS" in
+	*/\[*) ;;
+	*) FILES="$FILES $LS";;
+	esac
+done
+
+if test -w .prmnv || test \! -f .prmnv
+then
+	if test -f .B_lock
+	then
+		echo '*** There is already a B process running in this directory
+*** (probably in the background or on another terminal).
+*** QUIT that first (or rm .B_lock if you know what you are doing).'
+		exit 1
+	fi
+	>.B_lock
+	trap 'rm .B_lock; exit' 0 1 2 3 14 15
+else
+	echo '*** Warning: no write permission for directory.
+*** Changes to permanent variables will not be made permanent.'
+fi
+
+if	test -r \'INIT
+then
+	if	test -t
+	then	INIT=$LIB/b_init
+	else	INIT=$LIB/b_sinit
+	fi
+fi
+
+if test -w .prmnv
+then
+  cp .prmnv .prmnv.CKP
+else
+  rm -f .prmnv.CKP
+fi
+
+if test -w .B_lock
+then
+  trap ':' 1 2 3 14 15
+fi
+
+$BNEW $FILES $INIT
+ 
+if cmp .prmnv .prmnv.CKP 2>&- 1>&-
+then
+  rm -f .prmnv.CKP
+fi
+ 
+if test -r .prmnv
+then
+  case "`tail -10c .prmnv`" in
+	'{}') rm -f .prmnv
+  esac
+fi

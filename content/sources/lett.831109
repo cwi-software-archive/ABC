@@ -1,0 +1,21 @@
+It didn't compile right away because some of it was too big:
+
+make -k bsmall
+bmai.c:23: Symbol table overflow
+bsou.c:162: Symbol table overflow
+buni.c:30: Symbol table overflow
+
+The rest compiled without problem. I recompiled these three with pcc, and
+then it compiled OK.
+
+I think it is a lot faster than the version I had. Some remarks:
+
+1	It crashed (once) when I interrupted it (Oops ... BLURP ...). If it
+	goes on doing that I'll send an adb trace.
+
+2	What is the -g option to cc (should be $(CC) by the way) supposed to
+	do? I removed it.
+
+3	I haven't got the dirs doc & test. Did I miss much? Is there a
+	driver file bin/b, such that bsmall goes to lib/b ? I had one for the
+	previous version, but this is different.
