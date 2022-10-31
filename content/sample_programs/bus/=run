@@ -1,0 +1,6 @@
+echo =run bee/bus
+time ../src/bsmall <<\!
+INIT
+RUN
+QUIT
+!

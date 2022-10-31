@@ -1,0 +1,8 @@
+HOW'TO PRINT x:
+	WRITE x /
+	WRITE "A&pBA" /
+	READ resp RAW
+	IF resp <> "S":
+		WRITE "Printer malfunction" /
+		QUIT
+	WRITE "AKA" /

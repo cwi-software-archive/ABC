@@ -1,0 +1,15 @@
+HOW'TO SET'UP:
+	SHARE n'busses, n'stops, distance, speed
+	SHARE queue, waiting
+	DISPLAY'INIT
+	PUT 1, {} IN pos, queue
+	FOR b IN {1..n'busses}:
+		INSERT distance/speed, b th'of {"a".."z"}, pos IN queue
+		PUT pos + round (n'stops/n'busses) IN pos
+		IF pos > n'stops:
+			PUT 1 IN pos
+	PUT {} IN waiting
+	FOR s IN {1..n'stops}:
+		PUT 0 IN waiting[s]
+	FOR s IN {1..n'stops}:
+		INSERT t'next'client, '', s IN queue

@@ -1,0 +1,11 @@
+YIELD moos'in (p1, p2):
+	SHARE n'pos
+	PUT 0, 0 IN bulls, cows
+	FOR i IN {1..#p1}:
+		IF p1[i] = p2[i]:
+			PUT bulls+1 IN bulls
+			DELETE p1[i], p2[i]
+	WHILE SOME i IN {1..#p1} HAS SOME j IN {1..#p2} HAS p1[i] = p2[j]:
+		PUT cows+1 IN cows
+		DELETE p1[i], p2[j]
+	RETURN bulls, cows

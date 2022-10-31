@@ -1,0 +1,2 @@
+HOW'TO APPEND char TO gram:
+    PUT (gram^char)@2 IN gram

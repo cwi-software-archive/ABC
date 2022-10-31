@@ -1,0 +1,13 @@
+HOW'TO PRINT x AS xc:
+	SHARE range
+	WRITE '`xc`: '
+	FOR i' IN range:
+		PUT (max range) + (min range) - i' IN i
+		SELECT:
+			i not'in keys x:
+				WRITE '?'
+			x[i] = 0:
+				WRITE '0'
+			x[i] = 1:
+				WRITE '1'
+	WRITE /

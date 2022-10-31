@@ -1,0 +1,7 @@
+HOW'TO PRINT'KOPJE boek:
+	PUT boek IN naam, t
+	WRITE "Datum van vandaag:"
+	READ datum RAW
+	PRINT "             Inhoud `naam` d.d. `datum`"
+	PRINT "-" ^^ (10+20+14+12+12)
+	PRINT "`"Datum"<<10``"Omschrijving"<<20``"Rubriek"<<14``"Inkomsten">>12``"Uitgaven">>12`"

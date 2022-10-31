@@ -1,0 +1,27 @@
+HOW'TO FILL'LEVEL:
+	SHARE dwarf'loc, dwarf'strength, max'dwarf'strength
+	SHARE room
+	SHARE been'in'hall
+	SET'CORRIDORS
+	FILL'ROOMS
+	SET'DWARF
+	PUT 'no' IN been'in'hall
+FILL'ROOMS:
+	PUT {[0]: (0, 'absent')} IN room
+	FOR r IN caves:
+		FILL'ROOM
+FILL'ROOM:
+	SELECT:
+		chance 0.3:
+			CHOOSE hoard FROM {1..max'hoard}
+		ELSE:
+			PUT 0 IN hoard
+	SELECT:
+		chance 0.3:
+			PUT 'alive' IN dragon
+		ELSE:
+			PUT 'absent' IN dragon
+	PUT hoard, dragon IN room[r]
+SET'DWARF:
+	CHOOSE dwarf'loc FROM caves
+	CHOOSE dwarf'strength FROM {1..max'dwarf'strength}

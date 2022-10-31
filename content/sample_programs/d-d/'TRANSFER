@@ -1,0 +1,3 @@
+HOW'TO TRANSFER amount FROM s1 TO s2 AT'RATE p:
+	CHECK s1 >= amount AND p >= 0
+	PUT s1-amount, s2+amount*p IN s1, s2

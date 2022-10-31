@@ -1,0 +1,4 @@
+HOW'TO ENTER'ROOM:
+	SHARE room, room'nmb, exits, hoard, dragon
+	PUT room[room'nmb] IN hoard, dragon
+	PUT exits'of room'nmb IN exits

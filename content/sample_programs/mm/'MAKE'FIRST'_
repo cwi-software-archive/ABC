@@ -1,0 +1,6 @@
+HOW'TO MAKE'FIRST'MOVES'SET:
+	SHARE first'moves'set
+	PUT {} IN first'moves'set
+	ADD'ALL'CONTINUATIONS'OF {}
+	FOR m IN first'moves'set:
+		WRITE 'move: `m`' /

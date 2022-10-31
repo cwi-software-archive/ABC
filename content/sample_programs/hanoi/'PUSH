@@ -1,0 +1,2 @@
+HOW'TO PUSH t ON stack:
+	PUT t IN stack[#stack+1]

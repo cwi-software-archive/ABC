@@ -1,0 +1,42 @@
+HOW'TO MUTEER boek:
+	SHARE bestand
+	PUT boek IN naam, t
+	WHILE 1=1:
+		CLS
+		WRITE // "          *** Muteren in `naam` ***" /
+		WRITE "Betreft het ontvangsten of uitgaven?" /
+		READ antw RAW
+		SELECT:
+			antw is'afk'van "ontvangsten":
+				PUT "ontvangsten" IN transactie
+				PUT t^"o" IN type
+			antw is'afk'van "uitgaven":
+				PUT "uitgaven" IN transactie
+				PUT t^"u" IN type
+			ELSE: QUIT
+		REEKS'MUTATIES
+		WACHT
+REEKS'MUTATIES:
+	WHILE 1=1:
+		WRITE // "Datum:"
+		READ datum RAW
+		IF datum = "":
+			QUIT
+		WRITE "Omschrijving:"
+		READ omschr RAW
+		WRITE "Volgnummer boekingstuk:"
+		READ volgn RAW
+		WRITE "Bedrag:"
+		READ'BEDRAG
+		IF transactie = "uitgaven":
+			PUT -bedrag IN bedrag
+		WRITE "Rubriek `transactie`:"
+		READ rubr RAW
+		PUT datum, omschr, rubr, bedrag, type, volgn IN bestand[#bestand+1]
+READ'BEDRAG:
+	WHILE 1=1:
+		READ bedrag EG 0.00
+		IF bedrag < 0:
+			WRITE "Het bedrag mag niet negatief zijn" /
+		IF bedrag >= 0:
+			QUIT

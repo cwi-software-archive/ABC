@@ -1,0 +1,5 @@
+HOW'TO WIJZIG item ALS naam:
+	WRITE "`naam` (was `item`):"
+	READ antw RAW
+	IF antw > "":
+		PUT antw IN item

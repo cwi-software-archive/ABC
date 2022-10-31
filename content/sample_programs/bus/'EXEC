@@ -1,0 +1,17 @@
+HOW'TO EXEC event:
+	SHARE queue, waiting, n'stops
+	SHARE stop'start, handling'time, distance, speed
+	PUT event IN time, bus, stop
+	SELECT:
+		bus = '':
+			PUT waiting[stop] + 1 IN waiting[stop]
+			INSERT time+t'next'client, '', stop IN queue
+		ELSE:
+			INSERT time + delay + distance/speed, bus, next'stop IN queue
+			PUT 0 IN waiting[stop]
+	REMOVE event FROM queue
+	\
+delay:
+	RETURN (sign waiting[stop])*stop'start + handling'time*waiting[stop]
+next'stop:
+	RETURN (stop mod n'stops)+1

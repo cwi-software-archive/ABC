@@ -1,0 +1,7 @@
+HOW'TO BEPAAL'RUBRIEKEN:
+	SHARE bestand
+	PUT {} IN rubrn
+	FOR datum, omschr, rubr, bedrag, type, volgn IN bestand:
+		IF rubr not'in rubrn:
+			INSERT rubr IN rubrn
+	WRITE rubrn

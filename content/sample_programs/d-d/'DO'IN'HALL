@@ -1,0 +1,108 @@
+HOW'TO DO'IN'HALL:
+	SHARE capital, strength
+	SHARE level
+	SHARE exits
+	SHARE answer, non'numerical
+	IF capital < 0:
+		EXPELL
+		QUIT
+	PUT 0 IN amount
+	WHILE amount = 0:
+		INQUIRE 'Where do you want to spend your money ?'
+		IF stop:
+			QUIT
+		SELECT:
+			wand'waved:
+				BLAST
+			aggressive'answer:
+				FIGHT 'saloon'
+			numeric answer <> non'numerical:
+				NO'DEAL
+				QUIT
+			ELSE:
+				DEAL
+DEAL:
+	PUT 4 * cv**2 IN rate
+	PUT max {floor(cv'*level*50); 1} IN min'amount
+	WRITE 'The minimum fee there is `gp min'amount`'
+	SELECT:
+		capital < min'amount:
+			REFUSE'DEAL
+		ELSE:
+			TRY'DEAL
+cv:
+	RETURN some'approx'from answer
+cv':
+	RETURN some'approx'from (answer^'''')
+EXPELL:
+	WRITE 'With your debt of `gp-capital` you''d better not' /
+	WRITE 'show your face around here.' /
+	INQUIRE 'What exit do you want to sneak out through?'
+	IF stop:
+		QUIT
+	PUT numeric answer IN r'nmb
+	SELECT:
+		wand'waved:
+			BLAST
+		aggressive'answer:
+			FIGHT 'saloon'
+		r'nmb = non'numerical:
+			WRITE 'Stop fooling!' /
+		r'nmb in exits:
+			SWITCH'TO'ROOM r'nmb
+		ELSE:
+			ILLEGAL'EXPELL
+ILLEGAL'EXPELL:
+	WRITE 'You are caught trying to illegally open locked doors.' /
+	FINE 20 * level
+NO'DEAL:
+	PUT numeric answer IN r'nmb
+	CHECK r'nmb <> non'numerical
+	SELECT:
+		r'nmb in exits:
+			SWITCH'TO'ROOM r'nmb
+		ELSE:
+			WRITE 'Too much unclean living causes you to'
+			WRITE 'see doors where there are none!' /
+REFUSE'DEAL:
+	WRITE /
+	WRITE 'which is more than you possess!' /
+TRY'DEAL:
+	WRITE '.' /
+	INQUIRE 'How many gold pieces do you want to spend here?'
+	IF stop:
+		QUIT
+	PUT numeric answer IN amount
+	SELECT:
+		amount = non'numerical:
+			WRITE 'No foreign currency, please!' /
+			TRY'DEAL
+		amount < min'amount:
+			WRITE 'Miser!' /
+			TRY'DEAL
+		amount > capital:
+			WRITE 'Your check bounced.' /
+			TRY'DEAL
+		ELSE:	ACCEPT'DEAL
+ACCEPT'DEAL:
+	WRITE 'After a`so'and'so` `time'span` you have spent `gp amount`' /
+	WRITE 'and gained `pt floor(rate * amount)` of strength.' /
+	TRANSFER amount FROM capital TO strength AT'RATE rate
+so'and'so:
+	SELECT:
+		rate < 0.3:
+			RETURN ' lousy'
+		rate < 0.7:
+			RETURN ' rather boring'
+		rate < 1.5:
+			RETURN ' pleasant'
+		ELSE:
+			RETURN 'n excellent'
+time'span:
+	SELECT:
+		amount < 2*min'amount:
+			RETURN 'hour'
+		amount < 3*min'amount:
+			RETURN 'night'
+		ELSE:
+			RETURN 'week-end'

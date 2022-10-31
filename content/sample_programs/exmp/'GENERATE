@@ -1,0 +1,9 @@
+HOW'TO GENERATE x UPTO n:
+	PUT {1} IN set
+	WHILE set <> {}:
+		PUT min set IN m
+		REMOVE m FROM set
+		WRITE m /
+		FOR i IN x:
+			IF i*m <= n:
+				INCLUDE i*m IN set

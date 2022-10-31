@@ -1,0 +1,6 @@
+HOW'TO FINE amount:
+	SHARE capital
+	WRITE 'You are fined `gp amount`.' /
+	PUT capital-amount IN capital
+	IF capital < 0:
+		WRITE 'You have to borrow `gp-capital` to pay the fine.' /

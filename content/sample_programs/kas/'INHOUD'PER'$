@@ -1,0 +1,11 @@
+HOW'TO INHOUD'PER'CATEGORIE:
+	SHARE bestand
+	WRITE "Van welke kosten wilt U de inhoud en de totaaltelling zien?" /
+	READ antw RAW
+	PUT 0 IN totaal
+	FOR datum, omschr, cat, bedrag, type, volgn IN bestand:
+		IF #antw >= 4 AND #cat >= 4 AND antw|4 = cat|4:
+			WRITE regel'voor (datum, omschr, cat, bedrag) /
+			PUT totaal+bedrag IN totaal
+	WRITE "Totaal `(antw^":")<<36` `saldo totaal`"
+	WACHT

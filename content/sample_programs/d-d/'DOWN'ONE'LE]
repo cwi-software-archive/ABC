@@ -1,0 +1,10 @@
+HOW'TO DOWN'ONE'LEVEL:
+	SHARE level
+	LEAVE'ROOM
+	PUT level + 1 IN level
+	CHOOSE s FROM {'The earth trembles'; 'A high piercing sound rends the air'; 'A huge boulder drops from nowhere'}
+	WRITE '`s`, a crack opens in the floor, and' /
+	CHOOSE s FROM {'glide down a pole'; 'tiptoe down a staircase'; 'are blown down by a gush of wind'}
+	WRITE 'you `s` to the next lower level `level`.' /
+	FILL'LEVEL
+	ENTER'ROOM

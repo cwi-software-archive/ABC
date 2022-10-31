@@ -1,0 +1,21 @@
+HOW'TO ADD'ALL'CONTINUATIONS'OF move:
+	SHARE n'pos, n'colours, first'moves'set
+	PUT move IN p'move
+	PUT # p'move IN size'move
+	SELECT:
+		size'move = n'pos:
+			INSERT p'move IN first'moves'set
+		ELSE:
+			SELECT:
+				size'move= 0:
+					PUT 0 IN last
+					PUT n'pos IN n'last
+				ELSE:
+					PUT p'move[size'move] IN last
+					PUT last # p'move IN n'last
+			IF last = n'colours:
+				QUIT
+			PUT min {n'pos-#p'move; n'last} IN max'new
+			FOR i IN {1..max'new}:
+				PUT last+1 IN p'move[#p'move+1]
+				ADD'ALL'CONTINUATIONS'OF p'move

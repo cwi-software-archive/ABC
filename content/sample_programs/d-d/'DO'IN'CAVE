@@ -1,0 +1,40 @@
+HOW'TO DO'IN'CAVE:
+	SHARE dwarf'loc
+	SHARE capital, hoard
+	SHARE exits, dragon
+	SHARE answer, non'numerical
+	INQUIRE 'What is your move?'
+	IF stop:
+		QUIT
+	PUT numeric answer IN r'nmb
+	SELECT:
+		r'nmb <> non'numerical:		\ yecch
+			ATTEMPT'TO'LEAVE'ROOM
+		aggressive'answer:
+			FIGHT 'actively'
+		wand'waved:
+			DOWN'ONE'LEVEL
+		ELSE:
+			WRITE expl'move /
+expl'move:
+	RETURN "Your move must be an exit number, 'wand', 'wave', 'fight', 'score' or 'stop'"
+ATTEMPT'TO'LEAVE'ROOM:
+	SELECT:
+		r'nmb in exits:
+			IF dragon = 'alive':
+				DRAGON'ALIVE
+			IF dwarf'is'here:
+				DWARF'IS'HERE
+			SWITCH'TO'ROOM r'nmb
+		ELSE:
+			WRITE 'There is no such exit!' /
+			FIGHT 'passively'
+DRAGON'ALIVE:
+	WRITE 'The dragon requires ransom.' /
+	WRITE 'He extorts `gp ransom` from you.' /
+	TRANSFER ransom FROM capital TO hoard AT'RATE 1
+ransom:
+	RETURN round (0.1*capital)
+DWARF'IS'HERE:
+	IF r'nmb <> 0:
+		PUT r'nmb IN dwarf'loc	\ sticky dwarf

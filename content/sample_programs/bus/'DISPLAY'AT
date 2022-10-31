@@ -1,0 +1,33 @@
+HOW'TO DISPLAY'AT d'time:
+	SHARE queue, waiting, n'stops
+	PUT {} IN bs
+	FOR t, b, s IN queue:
+		IF b <> '':
+			IF debug:
+				CHECK'DOUBLES
+			PUT b IN bs[s]
+	WRITE ascii d'time, ':'
+	FOR s IN {1..n'stops}:
+		IF s in keys bs:
+			WRITE ' ', bs[s]
+		WRITE waiting[s]
+	WRITE /
+	IF debug:
+		DISPLAY'QUEUE
+	\
+CHECK'DOUBLES:
+	IF s in keys bs:
+		WRITE 'Queue contains double arrival at bus stop ` s `!!!' /
+DISPLAY'QUEUE:
+	WRITE 'Queue:' /
+	FOR time, bus, stop IN queue:
+		WRITE 'At time `ascii time`, '
+		SELECT:
+			bus = '':
+				WRITE 'passenger '
+			ELSE:
+				WRITE 'bus `bus` '
+		WRITE 'arrives at stop `stop`' /
+	FOR s IN keys waiting:
+		IF waiting[s] > 0:
+			WRITE 'At stop `s` `waiting[s]` passengers' /

@@ -1,0 +1,3 @@
+HOW'TO POP stack TO t:
+	PUT stack[#stack] IN t
+	DELETE stack[#stack]

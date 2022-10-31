@@ -1,0 +1,5 @@
+HOW'TO MAKE x FROM int:
+	SHARE range
+	PUT int, {} IN i, x
+	FOR p IN range:
+		PUT i mod 2, floor ( i / 2 ) IN x[p], i

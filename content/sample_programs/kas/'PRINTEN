@@ -1,0 +1,16 @@
+HOW'TO PRINTEN:
+INHOUD:
+	WHILE 1=1:
+		CLS
+		WRITE // "          *** Inhoud ***" /
+		WRITE "Wilt U het kasboek, bankboek of giroboek zien" /
+		WRITE "of een overzicht naar categorieen?" /
+		READ antw RAW
+		SELECT:
+			antw = "": QUIT
+			antw is'afk'van "kasboek": INHOUD'VAN "kasboek" TYPE "k"
+			antw is'afk'van "bankboek": INHOUD'VAN "bankboek" TYPE "b"
+			antw is'afk'van "giroboek": INHOUD'VAN "giroboek" TYPE "g"
+			antw is'afk'van "overzicht" OR antw is'afk'van "categorieen":
+				INHOUD'PER'CATEGORIE
+			ELSE: MELD'FOUT

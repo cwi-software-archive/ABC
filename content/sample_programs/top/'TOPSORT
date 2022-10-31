@@ -1,0 +1,43 @@
+HOW'TO TOPSORT succ'tab:
+	\ succ'tab EG {['']: {''}}  A good example is better than a 1000 words
+	PUT succ'tab IN succ
+	COLLECT'NAMES
+	PREPARE'NUMBER'OF'PREDECESSORS'TABLE
+	PREPARE'LIST'OF'NAMES'WITH'NO'PREDECESSORS
+	LOOP'TO'FIND'SUCCESSIVE'ITEMS'IN'SORTED'ORDER
+	CHECK'THAT'WE'OUTPUT'ALL'THE'ELEMENTS
+COLLECT'NAMES:
+	PUT {} IN names
+	FOR x IN keys succ:
+		IF x not'in names:
+			INSERT x IN names
+		FOR y IN succ[x]:
+			IF y not'in names:
+				INSERT y IN names
+PREPARE'NUMBER'OF'PREDECESSORS'TABLE:
+	PUT {} IN npred
+	FOR x IN names:
+		PUT 0 IN npred[x]
+	FOR x IN keys succ:
+		FOR y IN succ[x]:
+			PUT npred[y]+1 IN npred[y]
+PREPARE'LIST'OF'NAMES'WITH'NO'PREDECESSORS:
+	PUT {} IN nopred
+	FOR x IN keys npred:
+		IF npred[x] = 0:
+			INSERT x IN nopred
+LOOP'TO'FIND'SUCCESSIVE'ITEMS'IN'SORTED'ORDER:
+	WHILE # nopred <> 0:
+		PUT min nopred IN next
+		REMOVE next FROM nopred
+		REMOVE next FROM names
+		WRITE next, ' '
+		IF next in keys succ:
+			FOR x IN succ[next]:
+				PUT npred[x]-1 IN npred[x]
+				IF npred[x] = 0:
+					INSERT x IN nopred
+	WRITE //
+CHECK'THAT'WE'OUTPUT'ALL'THE'ELEMENTS:
+	IF # names > 0:
+		WRITE 'Cycle present, no ordering possible' /

@@ -1,0 +1,3 @@
+HOW'TO UPDATE followers FOR gram WITH char:
+    IF gram not'in keys followers: PUT {} IN followers[gram]
+    INSERT char IN followers[gram]

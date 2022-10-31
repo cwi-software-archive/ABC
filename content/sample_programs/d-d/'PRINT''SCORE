@@ -1,0 +1,6 @@
+HOW'TO PRINT''SCORE:
+	SHARE level, capital, experience, strength
+	WRITE 'level:      `level`' /
+	WRITE 'capital:    `capital`' /
+	WRITE 'experience: `experience`' /
+	WRITE 'strength:   `strength`' /

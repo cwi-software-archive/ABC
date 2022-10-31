@@ -1,0 +1,16 @@
+HOW'TO OVERZICHT'RUBRIEKEN:
+	SHARE rubrieken
+	CLS
+	WRITE // "          *** Overzicht Rubrieken ***" /
+	PUT "left" IN pos
+	FOR c IN rubrieken:
+		SELECT:
+			pos = "left":
+				WRITE "     `c<<35`"
+				PUT "right" IN pos
+			pos = "right":
+				WRITE c /
+				PUT "left" IN pos
+	IF pos = "right":
+		WRITE /
+	WACHT

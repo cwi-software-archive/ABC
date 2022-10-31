@@ -1,0 +1,11 @@
+HOW'TO LEAVE'ROOM:
+	SHARE hoard, capital
+	SHARE dragon, room, room'nmb
+	IF unguarded'hoard:
+		PICK'UP'HOARD
+	PUT hoard, dragon IN room[room'nmb]
+unguarded'hoard:
+	REPORT hoard > 0 AND dragon <> 'alive' AND NOT dwarf'is'here
+PICK'UP'HOARD:
+	WRITE 'You pick up `gp hoard`.' /
+	TRANSFER hoard FROM hoard TO capital AT'RATE 1

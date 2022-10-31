@@ -1,0 +1,76 @@
+HOW'TO PLAY'ADVENTURE name:
+	SHARE exits
+	SHARE dragon, dwarf'loc
+	SHARE room'nmb, level'nmb
+	SHARE been'in'hall
+	SHARE strength, experience, capital
+	SHARE answer
+	\ Dungeons & Dragons, a B-STLY Experience
+	\
+	\ Difficulty does not yet increase with level
+	SET'RANDOM name
+	SET'UP'GAME
+	FILL'LEVEL
+	SET'ROOM
+	PLAY'GAME
+	PRINT''SCORE
+SET'UP'GAME:
+	PUT 100, 0, 0 IN strength, experience, capital \ Youthful hero
+	PUT 1 IN level'nmb
+	PUT '' IN answer
+SET'ROOM:
+	CHOOSE room'nmb FROM rooms
+	ENTER'ROOM
+PLAY'GAME:
+	WHILE NOT stop:
+		PASS'TIME
+		SELECT:
+			room'nmb = 0: PLAY'RECR'HALL
+			room'nmb > 0: PLAY'CAVE
+PASS'TIME:
+	IF dwarf'around AND NOT dwarf'is'here:
+		CHOOSE dw'l FROM exits'of dwarf'loc
+		IF dw'l <> 0: PUT dw'l IN dwarf'loc
+PLAY'RECR'HALL:
+	EXPLAIN'HALL
+	DO'IN'HALL
+EXPLAIN'HALL:
+	SELECT:
+		been'in'hall = 'no': EXPLAIN'HALL'LONG
+		been'in'hall = 'yes': EXPLAIN'HALL'SHORT
+	PUT 'yes' IN been'in'hall
+	EXPLAIN'EXITS
+EXPLAIN'HALL'LONG:
+	WRITE 'This is R E C R E A T I O N   H A L L !!' /
+	WRITE 'All the joys & sins of seven Universes are at your' /
+	WRITE 'disposal. Here you find dancing bears & oliphaunts,' /
+	WRITE 'whiskey bars & gambling halls, chiromantists &' /
+	WRITE 'therapists, shoarma & gefillte fish, and for the' /
+	WRITE 'real freaks there are computers. Pick your choice' /
+	WRITE '& grab your chances!' /
+EXPLAIN'HALL'SHORT:
+	WRITE 'You''re in Recreation Hall.' /
+PLAY'CAVE:
+	EXPLAIN'CAVE
+	DO'IN'CAVE
+EXPLAIN'CAVE:
+	EXPLAIN'WHERE
+	EXPLAIN'HOARD
+	EXPLAIN'DANGERS
+	EXPLAIN'EXITS
+EXPLAIN'WHERE:
+	WRITE 'You''re in room `room'nmb` on level `level'nmb`.' /
+EXPLAIN'DANGERS:
+	SELECT:
+		dragon = 'alive':
+			WRITE 'There''s a dragon with you in the room!' /
+		dragon = 'dead':
+			WRITE 'There''s a reeking carcass in the corner.' /
+		ELSE:
+	IF dwarf'loc = room'nmb:
+		WRITE 'There''s a menacing little dwarf!' /
+EXPLAIN'EXITS:
+	SELECT:
+		#exits = 0: WRITE 'There are no exits from this cave!' /
+		#exits = 1: WRITE 'There is an exit to cave `listed exits`.' /
+		ELSE: WRITE 'There are exits to caves `listed exits`.' /

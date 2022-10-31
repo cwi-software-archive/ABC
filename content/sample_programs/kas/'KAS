@@ -1,0 +1,79 @@
+HOW'TO KAS:
+	SHARE bestand, boeken
+	IF bestand = {}:
+		OPEN'NIEUW'BESTAND
+	WHILE 1=1:
+		CLS
+		WRITE // "           *** Kas/Bank/Giroboek ***" /
+		WRITE "Wilt U muteren, een inhoud zien, iets veranderen," /
+		WRITE "een overzicht van de rubrieken hebben of iets printen?" /
+		READ antw RAW
+		SELECT:
+			antw = "":
+				QUIT
+			antw is'afk'van "muteren":
+				MUTEREN
+			antw is'afk'van'een'van {"inhoud"; "zien"}:
+				INHOUD
+			antw is'afk'van "veranderen":
+				VERANDEREN
+			antw is'afk'van'een'van {"overzicht"; "rubrieken"}:
+				OVERZICHT'RUBRIEKEN
+			antw is'afk'van "printen":
+				PRINTEN
+			ELSE:
+				FOUTE'AANDUIDING
+OPEN'NIEUW'BESTAND:
+	WRITE "Dit is een nieuw bestand; wat is de begindatum?"
+	READ datum RAW
+	WRITE // "Is het saldo negatief, muteer dan ook negatief" /
+	FOR boek IN boeken:
+		SALDO boek DD datum
+MUTEREN:
+	WHILE 1=1:
+		CLS
+		WRITE // "          *** Muteren ***" /
+		WRITE "Wilt U het ` x'boek ` muteren?" /
+		READ antw RAW
+		SELECT:
+			antw = "":
+				QUIT
+			SOME boek IN boeken HAS antw'duidt'boek'aan:
+				MUTEER boek
+			ELSE:
+				FOUTE'AANDUIDING
+INHOUD:
+	WHILE 1=1:
+		CLS
+		WRITE // "          *** Inhoud ***" /
+		WRITE "Wilt U het ` x'boek ` zien" /
+		WRITE "of selecteren naar rubrieken?" /
+		READ antw RAW
+		SELECT:
+			antw = "":
+				QUIT
+			SOME boek IN boeken HAS antw'duidt'boek'aan:
+				INHOUD'VAN boek
+			antw is'afk'van'een'van {"selecteren"; "rubrieken"}:
+				INHOUD'PER'RUBRIEK
+			ELSE:
+				FOUTE'AANDUIDING
+PRINTEN:
+	WHILE 1=1:
+		CLS
+		WRITE // "          *** Printen ***" /
+		WRITE "Wilt U het ` x'boek ` printen" /
+		WRITE "of selecteren naar rubrieken?" /
+		READ antw RAW
+		SELECT:
+			antw = "":
+				QUIT
+			SOME boek IN boeken HAS antw'duidt'boek'aan:
+				PRINT'INHOUD boek
+			antw is'afk'van'een'van {"selecteren"; "rubrieken"}:
+				PRINT'PER'RUBRIEK
+			ELSE:
+				FOUTE'AANDUIDING
+antw'duidt'boek'aan:
+	PUT boek IN n, t
+	REPORT antw is'afk'van n

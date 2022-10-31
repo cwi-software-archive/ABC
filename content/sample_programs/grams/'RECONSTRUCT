@@ -1,0 +1,19 @@
+HOW'TO RECONSTRUCT document USING n GRAMS:
+	PUT " "^^(n-1), {} IN gram, followers
+	FOR line IN document: ANALYSE \ Analyse each line in turn
+	FOR count IN {1..10}: GENERATE \ 10 lines of imitation
+ANALYSE: \ Analyse one line
+	FOR char IN line:
+		UPDATE followers FOR gram WITH char
+		APPEND char TO gram
+	UPDATE followers FOR gram WITH " " \ Treat line end as space
+	APPEND " " TO gram
+GENERATE: \ Generate one line
+	PUT 0 IN length
+	CHOOSE gram FROM keys followers \ Choose a random start
+	WHILE gram in keys followers AND (length<50 OR char<>" "):
+		CHOOSE char FROM followers[gram]
+		WRITE char
+		PUT length+1 IN length
+		APPEND char TO gram
+	WRITE / \ Write a newline

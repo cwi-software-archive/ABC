@@ -1,0 +1,5 @@
+HOW'TO TRY prec'table:
+	WRITE 'A topological sorting of' /
+	WRITE prec'table /
+	WRITE 'is:' /
+	TOPSORT prec'table

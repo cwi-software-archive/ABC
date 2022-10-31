@@ -1,0 +1,35 @@
+HOW'TO VERANDEREN:
+	SHARE bestand
+	CLS
+	WRITE // "          *** Veranderen ***" /
+	WRITE "Geef eerst het code-nummer van de te veranderen regel;" /
+	WRITE "indien niet bekend, geef direct RETURN" 
+	READ antw RAW
+	IF antw = "":
+		INHOUD'VAN ("bestand", "")
+		WRITE "Geef nu het code-nummer:"
+		READ antw RAW
+	PUT txt2num antw IN cdn
+	IF cdn < 0:
+		QUIT
+	IF cdn not'in keys bestand:
+		WRITE "Dit code-nummer bestaat niet in het bestand" /
+		WACHT
+		QUIT
+	PUT bestand[cdn] IN datum, omschr, rubr, bedr, type, volgn
+	WIJZIG datum ALS "datum"
+	WIJZIG omschr ALS "omschrijving"
+	WIJZIG volgn ALS "volgnummer"
+	WIJZIG'BEDR
+	WIJZIG rubr ALS "rubriek"
+	PUT datum, omschr, rubr, bedr, type, volgn IN bestand[cdn]
+WIJZIG'BEDR:
+	WHILE 1=1:
+		PUT '`abs bedr`', sign bedr IN b, sgn
+		IF sgn = 0: PUT 1 IN sgn
+		WIJZIG b ALS "bedrag"
+		PUT txt2num b IN b'
+		IF b' >= 0:
+			PUT sgn*b' IN bedr
+			QUIT
+		WRITE "Dit is geen goed bedrag" /

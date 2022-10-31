@@ -1,0 +1,3 @@
+HOW'TO INCLUDE e IN s:
+	IF e not'in s:
+		INSERT e IN s

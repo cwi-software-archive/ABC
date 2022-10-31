@@ -1,0 +1,32 @@
+HOW'TO FIND'BEST'FIRST'MOVE:
+	SHARE best'first'move, first'moves'set, all'pos
+	PUT {}, 0 IN best'first'move, best'qual
+	FOR move IN first'moves'set:	\ the moves we may choose
+		WRITE 'Examining move `move`' /
+		PUT move'qual IN m'qual
+		WRITE 'move `move`: m''qual = `m'qual`' /
+		IF m'qual > best'qual:
+			PUT move, m'qual IN best'first'move, best'qual
+	WRITE 'Best move found' /
+move'qual:
+	PUT 0 IN bit'sum
+	PUT {} IN size'map	\ optimization, to remember sizes
+	FOR op'pos IN all'pos:	\ the positions the opponent may choose
+		\ if he has chosen this one, we get the answer:
+		WRITE 'Opponent pos: `op'pos`' /
+		PUT moos'in (move, op'pos) IN moos
+		PUT size'of'reduced'set IN size
+		PUT bit'sum + (2 log ((#all'pos) / size)) IN bit'sum
+		WRITE 'leaves set of size `size`' /
+	RETURN bit'sum / (#all'pos)
+size'of'reduced'set:
+	\ determine the size of the set in all'pos which, when checked
+	\ against move, yield answer moos
+	IF moos in keys size'map:	\ already calculated before
+		RETURN size'map[moos]
+	PUT 0 IN cnt
+	FOR p IN all'pos:
+		IF moos'in (p, move) = moos:
+			PUT cnt+1 IN cnt
+	PUT cnt IN size'map[moos]	\ may come in handy
+	RETURN cnt

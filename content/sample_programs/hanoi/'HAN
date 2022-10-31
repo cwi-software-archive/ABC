@@ -1,0 +1,8 @@
+HOW'TO HAN size FROM a VIA b TO c:
+	SHARE needles, height
+	IF size > 0:
+		HAN size-1 FROM a VIA c TO b
+		POP needles[a] TO disc
+		PUSH disc ON needles[c]
+		SHOW'NEEDLES
+		HAN size-1 FROM b VIA a TO c

@@ -1,0 +1,8 @@
+HOW'TO INQUIRE prompt:
+	SHARE answer
+	WRITE prompt
+	READ answer RAW
+	WRITE { answer } /
+	IF answer = 'score':
+		PRINT''SCORE
+		INQUIRE prompt

@@ -1,0 +1,16 @@
+HOW'TO OVERZICHT'CAT:
+	SHARE categorie
+	CLS
+	WRITE // "          *** Overzicht Categorieen ***" /
+	PUT "left" IN pos
+	FOR c IN categorie:
+		SELECT:
+			pos = "left":
+				WRITE "     `c<<35`"
+				PUT "right" IN pos
+			pos = "right":
+				WRITE c /
+				PUT "left" IN pos
+	IF pos = "right":
+		WRITE /
+	WACHT

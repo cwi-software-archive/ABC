@@ -1,0 +1,17 @@
+HOW'TO PRINT'INHOUD boek:
+	SHARE bestand
+	PUT boek IN naam, t
+	CLS
+	WRITE // "            *** Printen inhoud `naam` ***" /
+	PUT 0 IN totaal
+	PRINT'KOPJE boek
+	FOR i IN keys bestand:
+		PUT bestand[i] IN datum, omschr, rubr, bedrag, type, volgn
+		IF type|(#t) = t:
+			PRINT regel'voor (datum, omschr, rubr, bedrag)
+			PUT totaal+bedrag IN totaal
+	PRINT ""
+	PRINT "`"Het saldo is nu:"<<44``saldo totaal`"
+	PRINT ""
+	PRINT ""
+	WACHT

@@ -1,0 +1,10 @@
+HOW'TO INIT:
+	SHARE distance, handling'time, influx, n'busses, n'stops
+	SHARE speed, stop'start
+	PUT 200 IN distance
+	PUT 3/14 IN handling'time
+	PUT 1/2 IN influx
+	PUT 3 IN n'busses
+	PUT 24 IN n'stops
+	PUT 300 IN speed
+	PUT 1/2 IN stop'start

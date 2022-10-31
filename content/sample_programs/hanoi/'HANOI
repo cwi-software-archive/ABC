@@ -1,0 +1,17 @@
+HOW'TO HANOI size:
+	SHARE needles, height
+	SELECT:
+		size < 0:
+			WRITE 'Illegale aanroep van HANOI!' /
+			QUIT
+		size > 11:
+			WRITE 'Dit past niet op het scherm!' /
+			QUIT
+		ELSE:
+	INITIALIZE
+	SHOW'NEEDLES
+	HAN size FROM 'left' VIA 'middle' TO 'right'
+INITIALIZE:
+	PUT {['left']: {}; ['middle']: {}; ['right']: {}}, size IN needles, height
+	FOR i IN {0..size-1}:
+		PUSH size-i ON needles['left']

@@ -1,0 +1,9 @@
+HOW'TO DISPLAY'INIT:
+	SHARE n'busses, n'stops, distance, speed, stop'start, handling'time, influx
+	WRITE 'Number of busses: `n'busses`' /
+	WRITE 'Number of stops: `n'stops`' /
+	WRITE 'Distance between stops: `distance` meters' /
+	WRITE 'Speed: `speed` meters/min' /
+	WRITE 'Stop/start time: `ascii stop'start`' /
+	WRITE 'Handling time: `ascii handling'time` per passenger' /
+	WRITE 'Influx: `2 round influx` passengers per minute' /

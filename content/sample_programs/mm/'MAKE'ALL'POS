@@ -1,0 +1,9 @@
+HOW'TO MAKE'ALL'POS move:
+	SHARE n'pos, n'colours, all'pos
+	PUT move, #move IN p'move, size'move
+	IF size'move = n'pos:
+		INSERT move IN all'pos
+		QUIT
+	FOR i IN {1..n'colours}:
+		PUT i IN p'move[size'move+1]
+		MAKE'ALL'POS p'move

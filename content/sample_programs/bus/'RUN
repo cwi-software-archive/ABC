@@ -1,0 +1,11 @@
+HOW'TO RUN:
+	SHARE queue
+	SET'UP
+	DISPLAY'AT 0
+	PUT 100 IN count
+	WHILE count > 0:
+		PUT min queue IN t, b, s
+		IF b <> '':
+			DISPLAY'AT t
+			PUT count-1 IN count
+		EXEC min queue

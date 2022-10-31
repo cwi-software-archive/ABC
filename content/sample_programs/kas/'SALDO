@@ -1,0 +1,5 @@
+HOW'TO SALDO boek DD datum:
+	SHARE bestand
+	WRITE "Geef saldo `boek`:"
+	READ saldo EG 0.00
+	PUT datum, "Saldo", "PM", saldo, t, 0 IN bestand[#bestand+1]

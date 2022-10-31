@@ -1,0 +1,5 @@
+HOW'TO SWITCH'TO'ROOM r'nmb:
+	SHARE room'nmb
+	LEAVE'ROOM
+	PUT r'nmb IN room'nmb
+	ENTER'ROOM

@@ -1,0 +1,33 @@
+HOW'TO PRINT'PER'CATEGORIE:
+	SHARE bestand, categorie
+	WRITE "Datum van vandaag:"
+	READ vandaag RAW
+	WHILE 1=1:
+		VRAAG'SOORT
+		IF soort = "":
+			QUIT
+		PRINT ""
+		PRINT ""
+		PRINT "  Totaalinhoud van `soort` d.d. `vandaag`"
+		PRINT "-" ^^ 74
+		PRINT ""
+		PUT 0 IN totaal
+		FOR datum, omschr, cat, bedrag, type, volgn IN bestand:
+			IF #soort >= 4 AND #cat >= 4 AND soort|4 = cat|4:
+				PRINT regel'voor (datum, omschr, cat, bedrag)
+				PUT totaal+bedrag IN totaal
+		PRINT ""
+		PRINT "`"Het totaal van `soort` is"<<44``saldo totaal`"
+		PRINT ""
+		PRINT ""
+VRAAG'SOORT:
+	WHILE 1=1:
+		WRITE "Categorie"
+		READ antw RAW
+		IF antw = "":
+			PUT "" IN soort
+			QUIT
+		FOR soort IN categorie:
+			IF #antw >= 4 AND #soort >= 4 AND antw|4 = soort|4:
+				QUIT
+		MELD'FOUT

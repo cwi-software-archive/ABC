@@ -1,0 +1,14 @@
+HOW'TO SHOW'NEEDLES:
+	SHARE needles, height
+	FOR i IN {0..height}:
+		PUT height+1-i IN level
+		WRITE /
+		FOR needle IN needles:
+			WRITE (half'disc^'|'^half'disc) >< (2*height+3)
+	WRITE //
+half'disc:
+	SELECT:
+		level in keys needle:
+			RETURN '='^^needle[level]
+		ELSE:
+			RETURN ''

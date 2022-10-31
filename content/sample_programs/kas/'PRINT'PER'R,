@@ -1,0 +1,33 @@
+HOW'TO PRINT'PER'RUBRIEK:
+	SHARE bestand, rubrieken
+	WRITE "Datum van vandaag:"
+	READ vandaag RAW
+	WHILE 1=1:
+		VRAAG'SOORT
+		IF soort = "":
+			QUIT
+		PRINT ""
+		PRINT ""
+		PRINT "  Totaalinhoud van `soort` d.d. `vandaag`"
+		PRINT "-" ^^ 74
+		PRINT ""
+		PUT 0 IN totaal
+		FOR datum, omschr, rubr, bedrag, type, volgn IN bestand:
+			IF soort is'zelfde'rubriek'als rubr:
+				PRINT regel'voor (datum, omschr, rubr, bedrag)
+				PUT totaal+bedrag IN totaal
+		PRINT ""
+		PRINT "`"Het totaal van `soort` is"<<44``saldo totaal`"
+		PRINT ""
+		PRINT ""
+VRAAG'SOORT:
+	WHILE 1=1:
+		WRITE "Rubriek"
+		READ antw RAW
+		IF antw = "":
+			PUT "" IN soort
+			QUIT
+		FOR soort IN rubrieken:
+			IF antw is'zelfde'rubriek'als soort:
+				QUIT
+		FOUTE'AANDUIDING

@@ -1,0 +1,9 @@
+HOW'TO SET'CORRIDORS:
+	SHARE corridors
+	\ The `corridors' are {(0, 1)};
+	\ # corridors = nmb'corridors
+	PUT {} IN corridors
+	WHILE # corridors <> nmb'corridors:
+		CHOOSE r FROM rooms
+		CHOOSE r' FROM rooms
+		INSERT r, r' IN corridors

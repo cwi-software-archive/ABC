@@ -1,0 +1,85 @@
+HOW'TO FIGHT style:
+	SHARE capital, strength, experience
+	SHARE dwarf'strength, dwarf'loc
+	SHARE answer
+	SHARE level
+	SHARE dragon
+	CHECK style = 'actively' OR style = 'passively' OR style = 'saloon'
+	SELECT:
+		style = 'saloon':
+			BRAWL
+		dragon = 'alive':
+			SELECT:
+				dwarf'is'here:
+					FIGHT'BOTH
+				ELSE:
+					FIGHT'DRAGON
+		ELSE:
+			SELECT:
+				dwarf'is'here:
+					FIGHT'DWARF
+				ELSE:
+					FIGHT'NONE
+BRAWL:
+	WRITE 'You get mixed up in a saloon brawl, get arrested, spend' /
+	WRITE 'a night in jail.' /
+	FINE fine
+fine:
+	RETURN 15*level
+FIGHT'BOTH:
+	IF style = 'actively':
+		WRITE 'Your valiant but foolish courage leads you nowhere.' /
+	WRITE 'The dragon and the dwarf join in an attack on you' /
+	WRITE 'and you don''t stand a chance. It will be small' /
+	WRITE 'comfort to you to know that afterwards the dragon'/
+	WRITE 'and the dwarf fight over your possessions, and that' /
+	CHOOSE winner FROM {'dragon'; 'dwarf'}
+	WRITE 'the `winner` wins.' /
+	PUT 0, 0, 'stop' IN capital, strength, answer
+FIGHT'DRAGON:
+	IF style = 'passively':
+		WRITE 'The dragon attacks you.'
+	SELECT:
+		(strength+experience) prevails'over dragon'strength:
+			REP'WON'DRAGON
+			PUT 'dead' IN dragon
+		ELSE:
+			REP'LOST'DRAGON
+	TRANSFER effort'dr FROM strength TO experience AT'RATE 1
+effort'dr:
+	RETURN min {dragon'strength; 0.5*strength}
+REP'WON'DRAGON:
+	WRITE 'In a few fell strokes you' /
+	WRITE 'manage to pierce its formidable armor. It topples' /
+	WRITE 'over, limply jerks one claw and expires.' /
+	WRITE 'Congratulations!' /
+REP'LOST'DRAGON:
+	WRITE 'Alas! The dragon deftly wards off your blows and' /
+	WRITE 'scorches you with his foul breath. You better get' /
+	WRITE 'out of here!' /
+FIGHT'DWARF:
+	SELECT:
+		(strength+experience) prevails'over dwarf'strength:
+			REP'WON'DWARF
+			PUT no'where IN dwarf'loc
+		ELSE:
+			REP'LOST'DWARF
+	TRANSFER effort'dw FROM strength TO experience AT'RATE 1
+effort'dw:
+	RETURN min {dwarf'strength; 0.5*strength}
+REP'WON'DWARF:
+	CHOOSE part FROM body'parts
+	WRITE 'By viciously kicking the dwarf in his `part`' /
+	WRITE 'you manage to bring him down. He runs off skrieking.' /
+	WRITE 'That''s one that won''t bother you again!' /
+REP'LOST'DWARF:
+	WRITE 'The dwarf wears first class leather and iron garments' /
+	WRITE 'and you only bruise your foot in kicking him. He' /
+	CHOOSE part FROM body'parts
+	WRITE 'slashes out with a knive and hits you in your `part`!' /
+body'parts:
+	RETURN {'head'; 'face'; 'shoulder'; 'arm'; 'elbow'; 'hand'; 'chest'; 'belly'; 'crotch'; 'leg'; 'knee'; 'foot'}
+FIGHT'NONE:
+	IF style = 'actively':
+		WRITE 'There''s nobody here to fight, oaf!' /
+		REDUCE experience BY'A'FACTOR 0.1

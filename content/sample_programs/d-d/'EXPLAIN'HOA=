@@ -1,0 +1,9 @@
+HOW'TO EXPLAIN'HOARD:
+	SHARE hoard
+	\ A `hoard' is EG 0, for the moment (number of gold pieces)
+	IF hoard = 0:
+		QUIT
+	PUT 'are' IN be
+	IF hoard = 1:
+		PUT 'is' IN be
+	WRITE 'There `be` `gp hoard` here.' /
